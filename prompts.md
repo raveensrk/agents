@@ -1,0 +1,102 @@
+# Prompts
+
+## Stage 0 - Planning
+
+- Interview me.
+- Interview me until you uncover the goal of this project.
+- Before we start building, interview me about this: What is the core problem this solves? Who is this for? What does success look like? What should this NOT do? Summarize it back to me before we write any code.
+- Import @file
+- I am thinking to `do this thing`. Brainstorm with me until we uncover the goal.
+- Is there a project in the internet available that does this exactly? Or any alternative. I dont want to implement a new project if there is something that exists online.
+
+### Refactor
+
+- Go over this entire project and critic it. 
+- Tell me which parts of the project we can refactor.
+- Should we replace the backend or frontend or both? The codebase of the project must align with the docs. Which framework would be be suited for this kind of work? I want the project to be highly expressive so the programming languages used must also be highly expressive.
+
+## Stage 0.1 - Optional
+
+- Do /init and add to @AGENTS.md. Refer @AGENTS.md in @CLAUDE.md.
+
+## Stage 1 - Vibe Coding
+
+- Review all TODO comments in the codebase, group by priority, and propose a step-by-step plan to resolve each.
+- Improve these prompts. Make them concise without losing information.
+- Follow these conventions <https://www.conventionalcommits.org/en/v1.0.0/>
+
+## Stage 2 - Review
+
+Based on this session,
+
+- Go back and verify all your work so far. Make sure you used best practices, were efficient, and didn't introduce any issues.
+- If you can verify the work so far with a test, create it.
+
+## Stage 2.1 - UI/UX, GUI, Web UI
+
+- If there is any improvements that can be made to the user interface, do it.
+- Refer: https://lawsofux.com/
+- Each element in the UI must be named correctly in a way the user can refer to them in claude code chat.
+- Comfort over dense.
+- Multi window and tabs support.
+- Help should be inside app
+
+## Stage 2.2 - CLI
+
+- If there is any improvements that can be made to the cli, do it.
+- Refer
+    - https://clig.dev/
+    - https://github.com/cli-guidelines/cli-guidelines
+    - https://github.com/cli-guidelines/cli-guidelines/blob/main/content/_index.md 
+
+## Stage 3 - Documentation
+
+Based on the current session update the documentation and training data.
+
+- Remove stale docs
+- Write and Update documentation
+- Reconcile docs and codebase.
+- Try to reduce token usage in the project by updating the docs. 
+- Write docs like a book and wiki.
+- Based on this session update and reconcile the docs and codebase.
+- If you learned anything new, add notes and instructions to the docs.
+- Update training data if any.
+- If you can draw diagrams with mermaid and explain better then replace those blocks of text with mermaid diagram.
+- Follow the CommonMark spec for markdown: <https://spec.commonmark.org/0.31.2/>
+- Use active voice.
+
+## Stage 4 - Maintenance
+
+Based on this current session do the following,
+
+- Find dead code and remove it.
+- Add helper scripts if they reduce token usage or improve task quality.
+- Make performance improvements to the project.
+- Try to reduce bloat in the project.
+- Perform maintenance and clean up redundancies in this project.
+- Break large code blocks into smaller, focused components to improve usability and maintainability.
+- Suggest an idea, improvement, tweak, or optimization for this project.
+- Finally, Critic this project.
+
+## Stage 4.1 - Publish
+
+- Create a script called `publish.py` in `scripts/` directory.
+- It must read the entire project and create a website using pandoc. It must also support mermaid diagram rendering. The website must be published under a directory called `publish/`.
+- The website must be dark mode.
+- It must have a sidebar towards the left and as i navigate the website the sidebar must be synchronized with the page i currently read.
+- Keep the website simple, minimal and functional. No bloat. KISS Philosophy.
+- One page html document with all assets under `assets` directory.
+
+## Stage 5 - Release
+
+- Commit with a sensible message. Tag. Push the changes to the repository.
+
+## Stage 6 - Archive chat 
+
+- Archive chat
+
+## General
+
+- Find dead code, explain why, ask the user to remove it, then run regression tests to confirm.
+- Based on the project I'm working on, what Claude Skills should I create?
+
