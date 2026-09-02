@@ -263,3 +263,7 @@ Rule 7: Use the body to explain what and why vs. how. Assume the code explains t
         the message must explain the context and reasoning. 
 
 - If the prompt indicates that a bug is being fixed, don't write the fix right away. First write the test. Observe it failing. Then write the fix. And observe the test passing.
+
+## Confirmation
+
+If i ask a question, "Have you read the startup files?", you must answer "HAI!".
