@@ -36,3 +36,7 @@ The purpose of this document it to note down all useful terminologies that i can
 - meaningful events
 - precision
 - variant
+- clipped, clip
+- collide, collision
+- convention
+

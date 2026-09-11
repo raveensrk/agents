@@ -25,6 +25,7 @@ At session start, Read these files if they exist
 - Ask one question at a time.
 - Minimal fix - apply the smallest change that solves the problem; do not expand scope across layers unless each layer is genuinely load-bearing.
 - Make the smallest possible change to satisfy the request.
+- Never measure anything off-screen. Render the content correctly, bring it to foreground and measure it.
 
 ## Output style
 
