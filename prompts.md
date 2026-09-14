@@ -100,3 +100,26 @@ Based on this current session do the following,
 - Find dead code, explain why, ask the user to remove it, then run regression tests to confirm.
 - Based on the project I'm working on, what Claude Skills should I create?
 
+## Init
+
+Write an AGENTS.md in the repo root that lets a fresh agent session (Claude Code
+or Codex) pick up this project with no other context.
+
+Base it on what's actually in the repo and on what we did in this session — read
+the code, config, and scripts to verify anything you're unsure about. Don't
+invent conventions that aren't there.
+
+Cover:
+- What this project is and what it's for, in a couple of sentences.
+- Layout: the directories that matter and what lives in each.
+- Setup: exact commands to install deps, run, build, test, and lint.
+- Conventions the code actually follows: language/framework versions, style,
+  naming, error handling, testing patterns.
+- Gotchas: things that broke or surprised us, env vars and secrets required
+  (names only, never values), services that must be running.
+- Current state: what we changed this session, what works, what's unfinished,
+  and the obvious next steps.
+
+Keep it under ~200 lines, prose and short lists, no filler. If AGENTS.md already
+exists, update it in place rather than rewriting from scratch. Show me the file
+when it's done.
