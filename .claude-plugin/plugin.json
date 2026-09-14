@@ -1,0 +1,8 @@
+{
+  "name": "agents",
+  "description": "Shared agent commands and conventions - privacy, PII and security scanning",
+  "version": "0.1.0",
+  "author": {
+    "name": "Raveen Kumar"
+  }
+}

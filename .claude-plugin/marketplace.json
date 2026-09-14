@@ -1,0 +1,14 @@
+{
+  "name": "raveen-agents",
+  "description": "Personal agent commands and conventions",
+  "owner": {
+    "name": "Raveen Kumar"
+  },
+  "plugins": [
+    {
+      "name": "agents",
+      "source": "./",
+      "description": "Shared agent commands - privacy, PII and security scanning"
+    }
+  ]
+}
