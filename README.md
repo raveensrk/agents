@@ -74,6 +74,8 @@ answer means the import did not load.
 |---|---|
 | `common.md` | Working style, output style, naming, commits, docs |
 | `emoji_legend.md` | Status emoji vocabulary for agent reports |
+| `inbox.md` | Inbox workflow - raw capture buffer (INBOX.md) |
 | `prompts.md` | Reusable prompts by workflow stage |
+| `task.md` | Task protocol - plain-text kanban with TODO.md / ARCHIVE.md |
 | `terminologies.md` | Shared prompting vocabulary |
 | `use_case.md` | What these agents get used for |

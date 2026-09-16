@@ -5,6 +5,8 @@
 At session start, Read these files
 
 - [Emoji Legend](emoji_legend.md) - in the same directory as this file
+- [Task Protocol](task.md) - plain-text kanban for AI coding agents
+- [Inbox Workflow](inbox.md) - raw capture buffer for unsorted ideas and notes
 
 At session start, Read these files if they exist
 
