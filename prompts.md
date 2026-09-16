@@ -1,5 +1,11 @@
 # Prompts
 
+## Purpose
+
+The purpose of this document is to note down all the various prompts I use for day to day work.
+
+- TODO: Organize this.
+
 ## Stage 0 - Planning
 
 - Interview me.
@@ -24,6 +30,8 @@
 - Review all TODO comments in the codebase, group by priority, and propose a step-by-step plan to resolve each.
 - Improve these prompts. Make them concise without losing information.
 - Follow these conventions <https://www.conventionalcommits.org/en/v1.0.0/>
+- What do do next?
+- Tell me next steps.
 
 ## Stage 2 - Review
 
