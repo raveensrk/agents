@@ -20,6 +20,7 @@ Prefer early returns (or an IIFE) over else. After an `if` that returns/throws, 
 ## GUI Apps
 
 - GUI apps you implement must be easily debuggable and navigatable from the claude code
+- Never measure anything off-screen. Render the content correctly, bring it to foreground and measure it.
 
 ## CLI and GUI Apps
 

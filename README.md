@@ -77,6 +77,7 @@ answer means the import did not load.
 | `emoji_legend.md` | Status emoji vocabulary for agent reports |
 | `git.md` | Commits and pull requests |
 | `inbox.md` | Inbox workflow - raw capture buffer (`docs/notes/inbox.md`) |
+| `jobs.md` | ETA rules for long-running jobs |
 | `prompts.md` | Reusable prompts by workflow stage |
 | `task.md` | Task protocol - kanban in `docs/notes/todo.md` / `archive.md` |
 | `todo_schema.md` | Canonical todo item format |
