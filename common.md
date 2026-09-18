@@ -15,21 +15,18 @@ Repo layout (`docs/`, `scripts/`, `inbox.md`, …) lives in that repo's `AGENTS.
 
 ## Don't
 
-- Apple Reminders
+- Apple Reminders. Never create or update them. If I say "create a task", "remind me", or "remind me later", write a short note in this repo instead ([Inbox Workflow](inbox.md), [Task Protocol](task.md)). If there is no repo, ask what to do.
 
 ## Working style
 
-- Use agile work. Tight scope.
 - Nothing vague - precise goal / result.
-- Use a second AI model to critique the output.
+- For multi-step, ambiguous, or high-impact work, use a second AI model to critique the output. Skip it for small, well-defined changes.
 - Define the precise criteria for a great result up front.
 - Use a past example as the format to match.
 - Interview me and ask clarifying questions before starting a task.
 - Ask one question at a time.
-- Minimal fix - apply the smallest change that solves the problem; do not expand scope across layers unless each layer is genuinely load-bearing.
-- Make the smallest possible change to satisfy the request.
+- Minimal fix - the smallest change that solves the problem. Do not expand scope across layers unless each layer is load-bearing.
 - Never measure anything off-screen. Render the content correctly, bring it to foreground and measure it.
-- ALWAYS USE PARALLEL TOOLS WHEN APPLICABLE.
 
 ## Output style
 
@@ -49,14 +46,13 @@ The reader has ADHD. Shape every response so it can be acted on:
 
 1. Lead with the answer or next action: command, path, or snippet first.
 2. Number multi-step work; one bounded action per step.
-3. End with one next action doable in under two minutes.
+3. End with one next action.
 4. Finish the current issue before raising a new one.
 5. Restate progress each turn ("step 3 of 5 done").
 6. Give time estimates in concrete units, never "a bit".
 7. After a change, show what now works.
 8. Errors: state location, cause, and fix. No drama.
-9. Cap lists at 5 items.
-10. No preamble, no recaps, no closers.
+9. No preamble, no recaps. The only closer is one next action (item 3).
 
 Exceptions: explain fully when asked to explain. Confirm before destructive actions. After three failed fixes, stop and name the doubtful assumption. If the request is ambiguous, ask one short question.
 
@@ -82,17 +78,11 @@ Always saved memories locally. Save location: `docs/memories.md`
 
 ## Repeatability
 
-The context must be maintained between every chat and session. Irrespective of the App. I use both Claude and Codex.
-
-Repeatability is required: every session must reconstruct identical context from this repo alone. Store all durable project rules, conventions, context, and "memories" in version-controlled repo files (preferably under `docs/`) - never in agent session/private memory. No agent knowledge is assumed to carry across sessions; if something is worth remembering, commit it to the repo. Agent-private memory may hold only pointers back to the canonical repo location.
-
-All durable rules and context live in this repo, never in agent session/private memory. Every session reconstructs identical context from the repo alone.
+Every session must reconstruct identical context from this repo alone, across Claude, Codex, and any other app. Store durable rules, conventions, context, and memories in version-controlled files (preferably under `docs/`). Never in agent-private memory. If it is worth remembering, commit it. Agent-private memory may hold only pointers back to the repo.
 
 ## Documentation
 
-- As you work, keep the docs/ up to date. Always reconcile documentation and codebase after every edit/change.
-- As we work on the project write useful information and documentation into docs/ directory in the root. Write it like a wiki using markdown files.
-- When writing documentation, add citations when you can.
+Keep `docs/` in sync with the code. Cite sources when you can.
 
 ## AGENTS.md
 
@@ -104,9 +94,6 @@ Before you do any work, mention how you could verify that work.
 
 ## Responses
 
-- Suggest me some follow-up prompts after you finish the work.
-- Always reply in clear and concise tone.
-- Be concise.
 - Always respond in active voice.
 
 ## Naming
@@ -133,30 +120,6 @@ Don't   : `/path/to/file_name.md`
 Same goes for images and media. For images and media use links with preview `![]()`.
 
 Use relative paths when writing documents. For `@` imports in agent startup instruction files (CLAUDE.md, AGENTS.md), use a `~/` path. Shell variables like `$HOME` are not expanded, and an absolute `/Users/<name>/` path breaks on another machine.
-
-## Markdown Tables
-
-Do not pad markdown table cells for column alignment. Use the compact form with single-space-padded content cells and a minimal separator row:
-
-```
-| Command | What it runs |
-|---|---|
-| `app serve` | runs app web ui |
-```
-
-Do **not** right-pad cells to line up columns:
-
-```
-| Command                       | What it runs             |
-| ----------------------------- | ------------------------ |
-| `app serve`                   | runs app web ui          |
-```
-
-Padding makes every content change rewrite the entire table, which blows up diffs on untouched rows.
-
-## Tokens
-
-- Automatically suggest when to compact or clear at the end of your response.
 
 ## Long-running jobs
 
