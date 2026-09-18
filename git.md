@@ -4,17 +4,15 @@ Commits and pull requests. Loaded from [common.md](common.md) at session start.
 
 ## Commits and PR Titles
 
-When committing don't add co author by claude.
+Never add an AI co-author trailer.
 
 ### Commit Conventions
 
-Conventional Commits with scopes. Omit scope when spanning multiple scopes.
+Use Conventional Commits for messages and PR titles: `type(scope): summary`. Omit scope when spanning multiple scopes.
 
 See: https://www.conventionalcommits.org/en/v1.0.0/
 
-Use conventional commit-style messages and PR titles: type(scope): summary.
-
-Types are feat, fix, docs, chore, refactor, and test.
+Types are feat, fix, docs, style, refactor, perf, test, build, ci, chore, and revert.
 
 Scopes are optional; use the affected package or area when helpful, e.g. core, web, tui, app, design, verif, desktop, etc.
 
@@ -22,7 +20,7 @@ Scopes are optional; use the affected package or area when helpful, e.g. core, w
 
 - fix(tui): simplify thinking toggle styling
 - docs: update contributing guide
-- chore(verif): rename variables.
+- chore(verif): rename variables
 
 ## Pull Requests
 
