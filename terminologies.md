@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of this document it to note down all useful terminologies that i can use to prompt ai.
+Personal notes. Copy terms into prompts. Agents do not treat this file as rules.
 
 ## Verification
 

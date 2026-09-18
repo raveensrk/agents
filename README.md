@@ -19,6 +19,8 @@ Any path works. The rest of this file assumes `~/repos/agents`.
 | Claude Code | every project | `~/.claude/CLAUDE.md` |
 | Codex | one project | `<project>/AGENTS.md` |
 | Codex | every project | `~/.codex/AGENTS.md` |
+| pi | one project | `<project>/AGENTS.md` |
+| pi | every project | `~/.pi/agent/AGENTS.md` |
 
 ### Claude Code
 
@@ -73,6 +75,7 @@ answer means the import did not load.
 | File | What it covers |
 |---|---|
 | `code_style.md` | How to write code |
+| `commands/` | Claude slash commands |
 | `common.md` | Session start, working style, output style |
 | `emoji_legend.md` | Status emoji vocabulary for agent reports |
 | `git.md` | Commits and pull requests |
@@ -81,5 +84,5 @@ answer means the import did not load.
 | `prompts.md` | Personal paste-bin of chat prompts |
 | `task.md` | Task protocol - kanban in `docs/notes/todo.md` / `archive.md` |
 | `todo_schema.md` | Canonical todo item format |
-| `terminologies.md` | Shared prompting vocabulary |
-| `use_case.md` | What these agents get used for |
+| `terminologies.md` | Personal prompt-vocab notes |
+| `use_case.md` | Personal notes: what I use agents for |

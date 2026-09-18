@@ -1,5 +1,7 @@
 # Use case
 
+Personal notes. What I use agents for. Agents do not treat this file as rules.
+
 - Programming
 - Create, Update and Manage Documentation
 - Financial Analysis
