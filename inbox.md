@@ -10,7 +10,7 @@ live here forever.
 |---|---|---|
 | `inbox.md` | `docs/notes/` | Raw capture buffer: unsorted ideas and notes |
 | `todo.md` | `docs/notes/` | Active tasks - promoted from inbox |
-| `archive.md` | `docs/notes/` | Completed/dropped task history |
+| `archive.md` | `docs/notes/` | Completed task history |
 | `docs/` | project root | Durable knowledge - promoted from inbox |
 
 ## When to capture
@@ -19,6 +19,7 @@ The active agent must write to `inbox.md` when the human says any of:
 
 - "remember me to do X"
 - "remind me to do X"
+- "create a task"
 - "note this down"
 - "save it for later"
 - "save this"
@@ -37,21 +38,19 @@ Capture anything that cannot go into tasks or docs:
 
 ## Format
 
-One line per item. Follows the [Todo Schema](todo_schema.md) where possible (line prefix, absolute dates), minus states, IDs, and priorities - inbox items are raw.
+One line per item. Follows the [Todo Schema](todo_schema.md) (`TODO:` prefix, absolute dates), minus IDs and priorities - inbox items are raw.
 
 ```markdown
-- 📥 <content> created:YYYY-MM-DD
+- TODO: <content> created:YYYY-MM-DD
   - <optional sub-bullet detail, free text>
 ```
 
 Example:
 
 ```markdown
-- 📥 Ideas for a dashboard to visualize agent task throughput created:2026-09-16
+- TODO: Ideas for a dashboard to visualize agent task throughput created:2026-09-16
   - Maybe weekly trends, top blocked tasks
 ```
-
-The `📥` prefix comes from the [emoji legend](emoji_legend.md): new / incoming / not yet triaged.
 
 ## Heading
 
@@ -78,5 +77,3 @@ After triage, remove the line from `inbox.md`. It is temporary, not a ledger.
 At session start, read:
 
 - `docs/notes/inbox.md` - pending ideas awaiting triage.
-- `docs/notes/todo.md` - active tasks.
-- `docs/notes/archive.md` - completed work and next task ID.

@@ -9,7 +9,7 @@ All rules below are agent-agnostic - "the active agent" means whichever agent is
 |---|---|---|
 | `inbox.md` | `docs/notes/` | Raw capture buffer: unsorted ideas awaiting review (see [Inbox Workflow](inbox.md)) |
 | `todo.md` | `docs/notes/` | Active board: `TODO` and `IN_PROGRESS` items |
-| `archive.md` | `docs/notes/` | History: `DONE` and `OBSOLETE` items. Append-only. |
+| `archive.md` | `docs/notes/` | History: `DONE` items. Append-only. |
 | `tmp/` | project root | Scratch/temporary data for active tasks. Gitignored. |
 
 ## Heading
@@ -20,8 +20,7 @@ All rules below are agent-agnostic - "the active agent" means whichever agent is
 
 - Format: `[T<n>]` - e.g. `[T1]`, `[T12]`, `[T100]`
 - Placed in the content field, right after the state: `- TODO: [T3] Add login handler +Auth created:2026-09-16 (A)`
-- Allocation: scan both `todo.md` and `archive.md`, next = max + 1
-- Monotonic: never reuse or recycle, even if task is `OBSOLETE`
+- Allocation: next = 1 + the highest `[T<n>]` ever used in `todo.md`, `archive.md`, or git history of those files (`git log -p`). Never reuse.
 
 ## States
 
@@ -32,21 +31,14 @@ All rules below are agent-agnostic - "the active agent" means whichever agent is
 | `OPTIONAL` | `todo.md` | Nice to have, not blocking |
 | `LATER` | `todo.md` | Deferred, worth doing eventually |
 | `DONE` | `archive.md` | Completed |
-| `OBSOLETE` | `archive.md` | Dropped / no longer relevant |
 
 ## Lifecycle
 
 ```
-New task ─→ TODO (todo.md)
-              ↓
-         IN_PROGRESS (todo.md)
-              ↓
-         DONE (archive.md)
-
-Any state ─→ OBSOLETE (archive.md)
+New task -> TODO (todo.md) -> IN_PROGRESS (todo.md) -> DONE (archive.md)
 ```
 
-- `OPTIONAL`/`LATER` can be promoted to `TODO`/`IN_PROGRESS`, or dropped to `OBSOLETE`.
+- `OPTIONAL`/`LATER` can be promoted to `TODO`/`IN_PROGRESS`, or dropped (delete the line).
 - When completing: change prefix to `DONE:`, add `completed:YYYY-MM-DD`, move line to `archive.md`.
 - Append-only in `archive.md` - never reorder or delete.
 
@@ -69,10 +61,9 @@ No ordering rule within `todo.md`.
 
 ## Claiming a task
 
-1. Find a `TODO` task (any agent can pick any task).
-2. Change `TODO:` to `IN_PROGRESS:` **before** starting work.
-3. If the task is already `IN_PROGRESS` by another agent - skip it, pick another.
-4. No ownership metadata - the `IN_PROGRESS` state itself is the claim.
+1. Pick a `TODO` or `IN_PROGRESS` task (any agent can pick any task).
+2. If it is `TODO:`, change it to `IN_PROGRESS:` before starting work.
+3. `IN_PROGRESS` is a status, not a lock. Continue it.
 
 ## Completing a task
 
@@ -83,20 +74,19 @@ No ordering rule within `todo.md`.
 
 ## Dropping a task
 
-1. Change prefix to `OBSOLETE:`.
-2. Move the line from `todo.md` to `archive.md`.
+1. Delete the line from `todo.md`. Git keeps history.
 
 ## Temporary vs durable data
 
 | What | Where | Git |
 |---|---|---|
-| Scratch notes, logs, debug output | `tmp/<T<n>>.md` | Ignored |
+| Scratch notes, logs, debug output | `tmp/` | Ignored |
 | Detailed specs, architecture notes | `docs/` | Tracked |
 | All task metadata (state, id, priority, dates) | `todo.md` | Tracked |
 
 ## Priority
 
-`(A)` > `(B)` > `(C)`. Agents pick highest priority first, then lowest ID.
+`(A)` > `(B)` > `(C)`. When I say "pick a task", pick highest priority first, then lowest ID.
 Priority is the last element on the line per the todo-schema.
 
 ## When to create a task
