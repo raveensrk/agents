@@ -32,8 +32,6 @@ Repo layout (`docs/`, `scripts/`, `inbox.md`, …) lives in that repo's `AGENTS.
 
 - Always respond in active voice.
 - Lots of information to show? Split it into bullets.
-- Use checklists, tables, symbols, icons and status emojis instead of dense prose.
-- Use visually pleasing colors, emoji, icons, symbols and fonts.
 - Emoji meanings live in the canonical [emoji legend](emoji_legend.md).
 - Punctuation: use plain hyphens (`-`) only; never em dashes (`—`) or en dashes (`–`).
 - Write code and docs that is easily greppable. `find`, `rg` and `grep` must easily find any information.
