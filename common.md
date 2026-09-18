@@ -83,7 +83,7 @@ Always saved memories locally. Save location: `docs/memories.md`
 
 ## Repeatability
 
-The context must be maintained between every chat and session. Irrespective ot the App. I use both Claude and Codex.
+The context must be maintained between every chat and session. Irrespective of the App. I use both Claude and Codex.
 
 Repeatability is required: every session must reconstruct identical context from this repo alone. Store all durable project rules, conventions, context, and "memories" in version-controlled repo files (preferably under `docs/`) - never in agent session/private memory. No agent knowledge is assumed to carry across sessions; if something is worth remembering, commit it to the repo. Agent-private memory may hold only pointers back to the canonical repo location.
 
@@ -93,7 +93,7 @@ All durable rules and context live in this repo, never in agent session/private 
 
 - Documentation lives in [docs](docs).
 - Every subdirectory under `docs/` must have an `index.md`.
-- As you work, keep the docs/ up to date. Always recoincile documentation and codebase after every edit/change.
+- As you work, keep the docs/ up to date. Always reconcile documentation and codebase after every edit/change.
 - As we work on the project write useful information and documentation into docs/ directory in the root. Write it like a wiki using markdown files.
 - When writing documentation, add citations when you can.
 
@@ -108,7 +108,7 @@ Before you do any work, mention how you could verify that work.
 ## Responses
 
 - Suggest me some follow-up prompts after you finish the work.
-- Always replay in clear and concise tone.
+- Always reply in clear and concise tone.
 - Be concise.
 - Always respond in active voice.
 
