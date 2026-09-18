@@ -72,11 +72,13 @@ answer means the import did not load.
 
 | File | What it covers |
 |---|---|
-| `common.md` | Working style, output style, naming, commits, docs |
+| `code_style.md` | How to write code |
+| `common.md` | Session start, working style, output style |
 | `emoji_legend.md` | Status emoji vocabulary for agent reports |
-| `inbox.md` | Inbox workflow - raw capture buffer (INBOX.md) |
+| `git.md` | Commits and pull requests |
+| `inbox.md` | Inbox workflow - raw capture buffer (`docs/notes/inbox.md`) |
 | `prompts.md` | Reusable prompts by workflow stage |
-| `task.md` | Task protocol - plain-text kanban with TODO.md / ARCHIVE.md |
-| `todo-schema.md` | Canonical todo item format |
+| `task.md` | Task protocol - kanban in `docs/notes/todo.md` / `archive.md` |
+| `todo_schema.md` | Canonical todo item format |
 | `terminologies.md` | Shared prompting vocabulary |
 | `use_case.md` | What these agents get used for |

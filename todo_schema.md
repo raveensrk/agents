@@ -1,6 +1,6 @@
 # TODO Schema
 
-Canonical format for todo items in `INBOX.md`, `TODO.md`, and task lists.
+Canonical format for todo items in `inbox.md`, `todo.md`, and task lists.
 
 ## Inspiration
 
@@ -68,5 +68,5 @@ When summarizing todos in reports, use the [Emoji Legend](emoji_legend.md):
 Reference this file - do not copy it. In the target repo's `AGENTS.md` / `CLAUDE.md`, add an import line pointing at your clone:
 
 ```markdown
-@<clone-path>/todo-schema.md
+@<clone-path>/todo_schema.md
 ```

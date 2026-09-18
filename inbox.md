@@ -8,14 +8,14 @@ live here forever.
 
 | File | Location | Purpose |
 |---|---|---|
-| `INBOX.md` | project root | Raw capture buffer: unsorted ideas and notes |
-| `TODO.md` | project root | Active tasks - promoted from inbox |
-| `ARCHIVE.md` | project root | Completed/dropped task history |
+| `inbox.md` | `docs/notes/` | Raw capture buffer: unsorted ideas and notes |
+| `todo.md` | `docs/notes/` | Active tasks - promoted from inbox |
+| `archive.md` | `docs/notes/` | Completed/dropped task history |
 | `docs/` | project root | Durable knowledge - promoted from inbox |
 
 ## When to capture
 
-The active agent must write to `INBOX.md` when the human says any of:
+The active agent must write to `inbox.md` when the human says any of:
 
 - "remember me to do X"
 - "remind me to do X"
@@ -31,13 +31,13 @@ Capture anything that cannot go into tasks or docs:
 
 ## When NOT to capture
 
-- Well-defined work with clear acceptance criteria - write it straight to `TODO.md` as a `[T<n>]` task (see [Task Protocol](task.md)). Inbox is only for vague or unorganized items - no queue, no confirmation step.
+- Well-defined work with clear acceptance criteria - write it straight to `todo.md` as a `[T<n>]` task (see [Task Protocol](task.md)). Inbox is only for vague or unorganized items - no queue, no confirmation step.
 - Durable knowledge - write to `docs/`.
 - Single-command trivialities - just do it, do not store.
 
 ## Format
 
-One line per item. Follows the [Todo Schema](todo-schema.md) where possible (line prefix, absolute dates), minus states, IDs, and priorities - inbox items are raw.
+One line per item. Follows the [Todo Schema](todo_schema.md) where possible (line prefix, absolute dates), minus states, IDs, and priorities - inbox items are raw.
 
 ```markdown
 - 📥 <content> created:YYYY-MM-DD
@@ -55,7 +55,7 @@ The `📥` prefix comes from the [emoji legend](emoji_legend.md): new / incoming
 
 ## Heading
 
-`INBOX.md` must start with an H1 heading on line 1:
+`inbox.md` must start with an H1 heading on line 1:
 
 ```markdown
 # INBOX
@@ -63,20 +63,20 @@ The `📥` prefix comes from the [emoji legend](emoji_legend.md): new / incoming
 
 ## Review and triage
 
-The human reviews `INBOX.md` and decides for each item. The agent may suggest, the human decides.
+The human reviews `inbox.md` and decides for each item. The agent may suggest, the human decides.
 
 | Decision | Action |
 |---|---|
-| Make it a task | Move to `TODO.md`, assign next `[T<n>]`, keep the `created:` date |
+| Make it a task | Move to `todo.md`, assign next `[T<n>]`, keep the `created:` date |
 | Durable knowledge | Move to `docs/`, file where appropriate |
 | Drop it | Remove the line - git keeps history |
 
-After triage, remove the line from `INBOX.md`. It is temporary, not a ledger.
+After triage, remove the line from `inbox.md`. It is temporary, not a ledger.
 
 ## Session start
 
 At session start, read:
 
-- `INBOX.md` - pending ideas awaiting triage.
-- `TODO.md` - active tasks.
-- `ARCHIVE.md` - completed work and next task ID.
+- `docs/notes/inbox.md` - pending ideas awaiting triage.
+- `docs/notes/todo.md` - active tasks.
+- `docs/notes/archive.md` - completed work and next task ID.
