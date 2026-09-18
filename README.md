@@ -78,7 +78,7 @@ answer means the import did not load.
 | `git.md` | Commits and pull requests |
 | `inbox.md` | Inbox workflow - raw capture buffer (`docs/notes/inbox.md`) |
 | `jobs.md` | ETA rules for long-running jobs |
-| `prompts.md` | Reusable prompts by workflow stage |
+| `prompts.md` | Personal paste-bin of chat prompts |
 | `task.md` | Task protocol - kanban in `docs/notes/todo.md` / `archive.md` |
 | `todo_schema.md` | Canonical todo item format |
 | `terminologies.md` | Shared prompting vocabulary |

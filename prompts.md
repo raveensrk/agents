@@ -2,9 +2,7 @@
 
 ## Purpose
 
-The purpose of this document is to note down all the various prompts I use for day to day work.
-
-- TODO: Organize this.
+Personal paste-bin. Copy a prompt into chat. Agents do not treat this file as rules.
 
 ## Stage 0 - Planning
 

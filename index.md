@@ -8,7 +8,7 @@ Index of documentation in this directory.
 - [Git](./git.md) - Commits and pull requests.
 - [Inbox Workflow](./inbox.md) - Raw capture buffer for unsorted ideas and notes.
 - [Jobs](./jobs.md) - ETA rules for long-running jobs.
-- [Prompts](./prompts.md) - Reusable prompts organized by workflow stage.
+- [Prompts](./prompts.md) - Personal paste-bin of chat prompts.
 - [Task Protocol](./task.md) - Plain-text kanban for AI coding agents.
 - [Terminologies](./terminologies.md) - Shared prompting vocabulary.
 - [Todo Schema](./todo_schema.md) - Canonical format for todo items in documentation files.
