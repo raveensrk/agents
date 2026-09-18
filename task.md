@@ -58,7 +58,7 @@ Any state ─→ OBSOLETE (ARCHIVE.md)
 
 ## Task line format
 
-Follows the todo-schema (`~/dot/docs/todo-schema.md`).
+Follows the [Todo Schema](todo-schema.md).
 
 ```markdown
 - IN_PROGRESS: [T4] Implement OAuth2 login flow +Auth @backend created:2026-09-16 due:2026-09-20 (A)

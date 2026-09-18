@@ -37,7 +37,7 @@ Capture anything that cannot go into tasks or docs:
 
 ## Format
 
-One line per item. Follows the todo-schema where possible (line prefix, absolute dates), minus states, IDs, and priorities - inbox items are raw.
+One line per item. Follows the [Todo Schema](todo-schema.md) where possible (line prefix, absolute dates), minus states, IDs, and priorities - inbox items are raw.
 
 ```markdown
 - 📥 <content> created:YYYY-MM-DD

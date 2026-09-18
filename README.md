@@ -77,5 +77,6 @@ answer means the import did not load.
 | `inbox.md` | Inbox workflow - raw capture buffer (INBOX.md) |
 | `prompts.md` | Reusable prompts by workflow stage |
 | `task.md` | Task protocol - plain-text kanban with TODO.md / ARCHIVE.md |
+| `todo-schema.md` | Canonical todo item format |
 | `terminologies.md` | Shared prompting vocabulary |
 | `use_case.md` | What these agents get used for |

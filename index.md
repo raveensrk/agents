@@ -8,5 +8,5 @@ Index of documentation in this directory.
 - [Prompts](./prompts.md) - Reusable prompts organized by workflow stage.
 - [Task Protocol](./task.md) - Plain-text kanban for AI coding agents.
 - [Terminologies](./terminologies.md) - Shared prompting vocabulary.
-- [Todo Schema](~/dot/docs/todo-schema.md) - Canonical format for todo items in documentation files.
+- [Todo Schema](./todo-schema.md) - Canonical format for todo items in documentation files.
 - [Use Case](./use_case.md) - Repository use cases.

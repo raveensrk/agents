@@ -7,10 +7,7 @@ At session start, Read these files
 - [Emoji Legend](emoji_legend.md) - in the same directory as this file
 - [Task Protocol](task.md) - plain-text kanban for AI coding agents
 - [Inbox Workflow](inbox.md) - raw capture buffer for unsorted ideas and notes
-
-At session start, Read these files if they exist
-
-- ~/dot/docs/todo-schema.md
+- [Todo Schema](todo-schema.md) - canonical format for todo items
 
 ## Don't
 
@@ -68,9 +65,7 @@ High effort is the default. Before executing **any** prompt:
 
 1. Analyse the prompt and task.
 2. Determine the best effort level for it (low / medium / high / extra / max).
-3. If it **differs** from the current effort level, recommend the change with a
-   one-line reason and **wait for confirmation** before executing.
-4. If it **matches** the current level, proceed without asking.
+3. Proceed at that level. Do not wait for confirmation.
 
 
 ## Editing
@@ -117,7 +112,8 @@ Before you do any work, mention how you could verify that work.
 - Docs: `docs/`
 - Scripts: `scripts/`
 - Tests: `tests/`
-- Todos and Inbox: `docs/notes/inbox.md` - items follow the [Todo Schema](~/dot/docs/todo-schema.md)
+- Inbox: `INBOX.md` - items follow the [Todo Schema](todo-schema.md)
+- Todos: `TODO.md` - see [Task Protocol](task.md)
 - Temporary files: `tmp/`
 
 ## Naming
@@ -130,7 +126,8 @@ Files and directories use `snake_case` - lowercase words joined by underscores.
 Exceptions:
 
 - Tool-recognized / conventional files keep their canonical casing: `README.md`,
-  `LICENSE`, `AGENTS.md`, `CLAUDE.md`, `SKILL.md`, `.gitignore`.
+  `LICENSE`, `AGENTS.md`, `CLAUDE.md`, `SKILL.md`, `.gitignore`, `INBOX.md`,
+  `TODO.md`, `ARCHIVE.md`.
 
 ## Markdown
 
@@ -252,18 +249,6 @@ From <https://fabiensanglard.net/agent.md/index.html>.
 - Strictly adhere to the layered boundary hierarchy: each layer may only communicate with its immediate neighbor directly below it. Never "punch holes" through layers (e.g., controllers or UI components must never directly call database queries, raw hardware drivers, or low-level network clients; always route through the intermediate service/abstraction layer).
 
 - Always use {}, even on a one-line "if" statement.
-
-When you write a commit message, follow these 7 rules:
-Rule 1: Separate the subject line from the body with a single blank line.
-Rule 2: Limit the subject line to 50 characters (72 is the absolute hard limit).
-Rule 3: Capitalize the first letter of the subject line.
-Rule 4: Do not end the subject line with a period.
-Rule 5: Use the imperative mood in the subject line (e.g., "Fix bug," "Add feature," 
-        not "Fixed" or "Adds"). Test formula: It must complete the sentence: "If applied,
-        this commit will [your subject line here]".
-Rule 6: Wrap the body text manually at 72 characters to prevent Git formatting issues.
-Rule 7: Use the body to explain what and why vs. how. Assume the code explains the how;
-        the message must explain the context and reasoning. 
 
 - If the prompt indicates that a bug is being fixed, don't write the fix right away. First write the test. Observe it failing. Then write the fix. And observe the test passing.
 
