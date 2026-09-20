@@ -39,4 +39,5 @@ Personal notes. Copy terms into prompts. Agents do not treat this file as rules.
 - clipped, clip
 - collide, collision
 - convention
+- bulletproof
 
