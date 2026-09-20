@@ -104,7 +104,28 @@ Based on this current session do the following,
 ## General
 
 - Find dead code, explain why, ask the user to remove it, then run regression tests to confirm.
+
+## Skills
+
 - Based on the project I'm working on, what Claude Skills should I create?
+
+### Self-updating skill
+
+Create a skill for `<task>`. Write `SKILL.md` with the goal, the steps, and the
+criteria for a good result.
+
+The skill must maintain itself as I use it:
+
+- Read `SKILL.md` at the start of every run and follow it as written.
+- At the end of every run, compare what I actually asked for and corrected
+  against what the skill says.
+- Where I deviated, ask me one question: one-off, or my new intent?
+- On "new intent", rewrite only the affected lines, keep the file the same
+  length or shorter, and show me the diff before saving.
+- Log every change under `## Changelog` in the skill: date, what changed, what
+  prompted it.
+- Never widen the scope on your own. A deviation changes the skill only after I
+  confirm it.
 
 ## Init
 
