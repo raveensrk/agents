@@ -11,11 +11,12 @@ But it is slightly adapted to my needs.
 ## Format
 
 ```markdown
-- STATE: <content> +Project_Tag @Context_Tag created:YYYY-MM-DD completed:YYYY-MM-DD due:YYYY-MM-DD recurring:<interval> (A)
+- STATE: [T<n>] <content> +Project_Tag @Context_Tag created:YYYY-MM-DD completed:YYYY-MM-DD due:YYYY-MM-DD recurring:<interval> (A)
   - <optional sub-bullet details, free text>
 ```
 
 - One item per top-level list line: uppercase state, colon, space, content.
+- `[T<n>]` - optional task ID, first element of the content. Allocation rules live in [Task Protocol](task.md) - never reuse a number.
 - Metadata fields follow the content, in this order: `+Project_Tag @Context_Tag created: completed: due: recurring: (A)`. Each field is optional.
 - `+Project_Tag` - optional project tag.
 - `@Context_Tag` - optional context tag.
