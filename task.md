@@ -31,6 +31,7 @@ All rules below are agent-agnostic - "the active agent" means whichever agent is
 | `OPTIONAL` | `todo.md` | Nice to have, not blocking |
 | `LATER` | `todo.md` | Deferred, worth doing eventually |
 | `DONE` | `archive.md` | Completed |
+| `OBSOLETE` | `archive.md` | No longer relevant, kept for the record |
 
 ## Lifecycle
 

@@ -11,22 +11,93 @@ But it is slightly adapted to my needs.
 ## Format
 
 ```markdown
-- STATE: [T<n>] <content> +Project_Tag @Context_Tag created:YYYY-MM-DD completed:YYYY-MM-DD due:YYYY-MM-DD recurring:<interval> (A)
-  - <optional sub-bullet details, free text>
+- STATE: [T<n>] <title> <metadata...> (A)
+  - <optional detail, free text>
 ```
 
-- One item per top-level list line: uppercase state, colon, space, content.
-- `[T<n>]` - optional task ID, first element of the content. Allocation rules live in [Task Protocol](task.md) - never reuse a number.
-- Metadata fields follow the content, in this order: `+Project_Tag @Context_Tag created: completed: due: recurring: (A)`. Each field is optional.
-- `+Project_Tag` - optional project tag.
-- `@Context_Tag` - optional context tag.
-- `created:YYYY-MM-DD` - optional, absolute ISO dates only.
-- `completed:YYYY-MM-DD` - optional, absolute ISO dates only.
-- `due:YYYY-MM-DD` - optional, absolute ISO dates only.
-- `recurring:<interval>` - optional recurrence: `daily`, `weekly`, `monthly`, `yearly`, or compact counts like `2d`, `3w`, `6m`. On completion, advance `due:` to the next occurrence instead of marking `DONE`.
-- `(A)` - optional priority (A, B, or C); the last element on the line.
-- Details go in nested sub-bullets (2-space indent), free-form.
-- Change state by editing the prefix in place. Drop an item by deleting the line (git keeps history).
+Every todo item is one line, and one regex parses it: see
+[Reference regex](#reference-regex). Tools copy that regex instead of writing their own.
+
+### Line
+
+- One item per line: `- `, a state from [States](#states), `: `, then the content.
+  `-` is the only bullet.
+- `[T<n>]` - optional task ID, first element of the content. Allocation rules live in
+  [Task Protocol](task.md) - never reuse a number.
+- The title is free text. It may contain anything - links, URLs, colons, an `@` in an
+  email or domain - but it must not end in something that looks like metadata.
+- Metadata follows the title as space-separated tokens, in any order. Every token is
+  optional.
+- The priority `(A)`, `(B)` or `(C)` is optional and comes last.
+- Nothing follows the metadata or the priority. Notes go in sub-bullets.
+- Details go in sub-bullets, indented 2 spaces per level.
+- Change state by editing the prefix in place. Drop an item by deleting the line (git
+  keeps history).
+
+### Checklists
+
+`- [ ]` and `- [x]` lines are checklists - steps in a procedure, audit or test run
+that you tick each time - not todo items. The reference regex never matches them.
+Work to be done is a todo line with a state.
+
+### Metadata tokens
+
+| Token | Format | Example |
+|---|---|---|
+| Tag | `+` then letters, digits, `_` - a project or a kind | `+raveenkumar_xyz`, `+bug` |
+| Context tag | `@` then letters, digits, `_` | `@backend` |
+| `created:` | date or date-time | `created:2026-09-15` |
+| `completed:` | date or date-time | `completed:2026-09-19` |
+| `due:` | date or date-time | `due:2026-08-19T09:00` |
+| `recurring:` | `daily`, `weekly`, `monthly`, `yearly`, or a count plus `d`, `w`, `m` or `y` | `recurring:2w` |
+
+A tag ends at the first character that is not a letter, digit or `_`, so
+`@raveenkumar.xyz` inside a title stays title text.
+
+A task's kind is a tag, not a state: `+bug` when something behaves wrongly, `+fixme`
+when it works but needs rework. The state tracks progress and the tag records the kind,
+so a fixed bug stays findable as a `DONE` line with `+bug`.
+
+```markdown
+- TODO: Reset sequencing is incorrect +bug
+```
+
+On completing a `recurring:` item, advance `due:` to the next occurrence instead of
+marking it `DONE`.
+
+### Dates and times
+
+- Date `YYYY-MM-DD`, or date-time `YYYY-MM-DDTHH:MM`.
+- 24-hour clock, local time, no seconds, no time zone.
+- One word, no spaces: `due:2026-08-19 09:00` splits into two tokens and breaks the line.
+- Always zero-padded, so text order is time order.
+
+Tools warn on any `created:`, `completed:` or `due:` value that does not match:
+
+```regex
+DATE = \d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])
+TIME = T([01]\d|2[0-3]):[0-5]\d
+```
+
+| Value | Result |
+|---|---|
+| `due:2026-09-10` | valid |
+| `due:2026-08-19T09:00` | valid |
+| `due:2026-9-10` | invalid - month needs a leading zero |
+| `due:2026-19-08` | invalid - month and day swapped |
+| `due:2026-08-19T9:00` | invalid - hour needs a leading zero |
+
+The pattern checks shape and ranges only. It accepts impossible dates such as
+`2026-02-30`; a date parser rejects those.
+
+### Reference regex
+
+Anchored, one line. Groups: 1 indent, 2 state, 3 task number, 4 title, 5 metadata,
+6 priority.
+
+```regex
+^(\s*)- (TODO|IN_PROGRESS|OPTIONAL|LATER|DONE|OBSOLETE): (?:\[T(\d+)\] )?(.+?)((?: (?:\+\w+|@\w+|(?:created|completed|due):\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])(?:T(?:[01]\d|2[0-3]):[0-5]\d)?|recurring:(?:daily|weekly|monthly|yearly|\d+[dwmy])))*)(?: \(([ABC])\))?$
+```
 
 ## States
 
@@ -37,8 +108,9 @@ But it is slightly adapted to my needs.
 | `OPTIONAL` | Nice to have - do it if time permits |
 | `LATER` | Deferred - worth doing, but not now |
 | `DONE` | Completed |
+| `OBSOLETE` | No longer relevant - kept for the record |
 
-Life cycle: `TODO -> IN_PROGRESS -> DONE`. `OPTIONAL` and `LATER` items can be promoted to `TODO`/`IN_PROGRESS`, or dropped (delete the line).
+Life cycle: `TODO -> IN_PROGRESS -> DONE`. `OPTIONAL` and `LATER` items can be promoted to `TODO`/`IN_PROGRESS`, or dropped (delete the line). Any item can become `OBSOLETE` instead of being deleted, to keep the record.
 
 ## Reporting
 
