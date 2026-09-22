@@ -55,6 +55,16 @@ The reader has ADHD. Shape every response so it can be acted on:
 
 Exceptions: explain fully when asked to explain. Confirm before destructive actions. After three failed fixes, stop and name the doubtful assumption. If the request is ambiguous, ask one short question.
 
+## Explain visually
+
+When I don't understand something, show it instead of repeating it in text.
+
+- Trigger: I ask about something you just said ("what prefix rule?"), say I don't follow, or ask the same thing twice. Otherwise plain text stays the default.
+- Build a small HTML page: mockup, worked example, drawing, diagram, flowchart, or report. Assume I know less than you. Use plain words and concrete examples.
+- Save it as `/tmp/explain/<topic>.html` (`snake_case`) and open it in the browser.
+- Goal: I fully understand before we go to the next step. Ask whether it landed.
+- Delete the files you created as soon as I confirm I understand, unless I ask to keep them. Leave other files in `/tmp/explain/` alone.
+
 ## Plan mode and Brainstorming
 
 Remind me to brainstorm and plan depending on the prompt and task. Decide based on your best judgement - for multi-step, ambiguous, or high-impact work; skip it for small, well-defined changes.
