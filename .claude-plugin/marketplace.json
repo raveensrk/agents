@@ -1,6 +1,6 @@
 {
   "name": "raveen-agents",
-  "description": "Personal agent commands and conventions",
+  "description": "Personal agent skills and conventions",
   "owner": {
     "name": "Raveen Kumar"
   },
@@ -8,7 +8,7 @@
     {
       "name": "agents",
       "source": "./",
-      "description": "Shared agent commands - privacy, PII and security scanning"
+      "description": "Shared agent skills - git report, todo migration, privacy scanning"
     }
   ]
 }

@@ -1,6 +1,7 @@
 ---
-description: Convert line-schema todos to the lisp schema, one repo at a time
-argument-hint: [dir ...] [--apply]
+name: migrate-todo
+description: 'Convert line-schema todos (- TODO: ...) to the lisp schema (@(todo ...)), one repo at a time. Dry run by default. Use when the user asks to migrate, convert or upgrade todos to the lisp schema.'
+argument-hint: "[dir ...] [--apply]"
 allowed-tools: Read, Glob, Grep, Bash(python3:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git -C:*)
 disable-model-invocation: false
 ---
@@ -9,21 +10,21 @@ disable-model-invocation: false
 
 ## Target
 
-`$ARGUMENTS`
-
-Directories to scan. Default to `~/repos ~/dot` when none are given.
+The directories the user named. Default to `~/repos ~/dot` when none are
+given.
 
 ## What this does
 
 Rewrites every line-schema item as a form, per
-[Todo Schema (Lisp)](../todo_schema_lisp.md):
+[Todo Schema (Lisp)](../../todo_schema_lisp.md):
 
 ```markdown
 - TODO: [T3] Pay rent +finance @home due:2026-08-05 (A)
 - @(todo T3 "Pay rent" (tag finance) (ctx home) (due 2026-08-05) (pri A))
 ```
 
-The conversion is done by `scripts/migrate_todo.py`, beside this file. Run the
+The conversion is done by `scripts/migrate_todo.py` in this skill's directory
+(`<skill_dir>` below is the directory holding this file). Run the
 script. Do not convert lines yourself: a deterministic pass over thousands of
 lines is the point, and an agent editing them by hand is slower, costlier and
 less repeatable.
@@ -33,7 +34,7 @@ less repeatable.
 1. Dry run first, always. It writes nothing.
 
    ```bash
-   python3 <this plugin>/scripts/migrate_todo.py ~/repos ~/dot
+   python3 <skill_dir>/scripts/migrate_todo.py ~/repos ~/dot
    ```
 
 2. Show me the report. Per repo: lines, files, and whether the tree is clean.
@@ -46,7 +47,7 @@ less repeatable.
    a repo with a dirty tree is skipped rather than mixed into my work.
 
    ```bash
-   python3 <this plugin>/scripts/migrate_todo.py --apply ~/repos ~/dot
+   python3 <skill_dir>/scripts/migrate_todo.py --apply ~/repos ~/dot
    ```
 
 5. Report what landed: the commit in each repo, and which repos were skipped for

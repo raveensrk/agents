@@ -75,7 +75,6 @@ answer means the import did not load.
 | File | What it covers |
 |---|---|
 | `code_style.md` | How to write code |
-| `commands/` | Claude slash commands |
 | `common.md` | Session start, working style, output style |
 | `emoji_legend.md` | Status emoji vocabulary for agent reports |
 | `git.md` | Commits and pull requests |
@@ -99,6 +98,8 @@ directory name to match the skill `name`.
 | Skill | What it does |
 |---|---|
 | `git-report` | Your commits across all your repos, local and remote, for any time window |
+| `migrate-todo` | Converts line-schema todos to the lisp schema, one repo at a time |
+| `privacy-scan` | Scans files or a diff for PII, privacy and security issues |
 
 ### Install
 
@@ -117,7 +118,7 @@ installed on the machine. Each item is a link back to this clone, so a
 | Item | Claude Code | Codex | pi |
 |---|---|---|---|
 | `skills/*` | `~/.claude/skills/` | `~/.agents/skills/` | `~/.agents/skills/` (same link as Codex) |
-| `commands/*.md` | `~/.claude/commands/` | not supported | `~/.pi/agent/prompts/` |
+| `commands/*.md` (none yet) | `~/.claude/commands/` | not supported | `~/.pi/agent/prompts/` |
 
 - Idempotent: run it again after every `git pull`. It adds new items and
   removes links to items that were deleted or renamed here.
