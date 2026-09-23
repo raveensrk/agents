@@ -56,6 +56,8 @@ def load_config():
         sys.exit(f"ERROR: 'emails' in {CONFIG} is empty")
     if not cfg["dirs"] and not cfg["repos"]:
         sys.exit(f"ERROR: 'dirs' and 'repos' in {CONFIG} are both empty")
+    if "default_hours" in cfg and ("start" in cfg or "end" in cfg):
+        sys.exit(f"ERROR: {CONFIG} sets default_hours and start/end; keep only one")
     hours = cfg.get("default_hours", 24)
     if isinstance(hours, bool) or not isinstance(hours, (int, float)) or hours <= 0:
         sys.exit(f"ERROR: 'default_hours' in {CONFIG} must be a number above 0")

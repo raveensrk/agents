@@ -28,12 +28,14 @@ data; you only choose the window and write the report.
     "me@company.com",
   ]
 
-  # Optional. Window used when no start is given: the last N hours up to
-  # the end. Any number above 0 (168 = one week). Defaults to 24.
+  # Optional. Set EITHER default_hours OR start/end, never both.
+
+  # The last N hours up to now. Any number above 0 (168 = one week).
+  # Defaults to 24.
   default_hours = 24
 
-  # Optional. A fixed window, in local time. Either key may be left out:
-  # no end means now; no start means default_hours before the end.
+  # A fixed window, in local time. Either key may be left out:
+  # no end means now; no start means 24 hours before the end.
   # Any --start or --end flag replaces both keys.
   # start = "2026-09-22 11:00"
   # end = "2026-09-23 04:00"
@@ -71,8 +73,9 @@ data; you only choose the window and write the report.
    `--start` (it defaults to `default_hours` before the end).
 3. If the window is ambiguous, ask one question before running anything.
 
-Window precedence: flags, then config `start`/`end`, then `default_hours`.
-Any flag replaces the config window as a whole.
+Window precedence: flags, then config `start`/`end` or `default_hours`
+(the config may set only one of these). Any flag replaces the config window
+as a whole.
 
 ## Step 2 - Run
 
