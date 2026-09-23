@@ -65,9 +65,8 @@ lines, because a comment is often narrower than the form; see
   comment terminator (`*/`, `-->`, `#|`) or a trailing sentence is ignored, not
   an error.
 - Everything but the head is case-sensitive. States and keys are lowercase, and
-  so are tag and context values; an uppercase state is not a task. An ID is an
-  uppercase `T` then digits: `"T3"`, never `"t3"`. A priority is `A`, `B` or
-  `C`.
+  so are tag values; an uppercase state is not a task. An ID is an uppercase
+  `T` then digits: `"T3"`, never `"t3"`. A priority is `A`, `B` or `C`.
 - Details go in `("note" "...")`, inside the form. Prose near an item carries no
   task data, and no tool reads it.
 - Change state by editing the first value in place. Drop an item by deleting the
@@ -123,9 +122,9 @@ Markdown italicizes paired `_` inside a list item, so a tag value like
 `raveen_kumar_xyz` renders as `raveen*kumar*xyz`. Values use kebab-case instead:
 `raveenkumar-xyz`, `in-progress`. An underscore is invalid in a value.
 
-Tag and context values are lowercase. `Finance` and `finance` would otherwise be
-two tags, and the existing corpus already holds both spellings of exactly that
-word. Dates, priorities and IDs have their own shapes and keep their case.
+Tag values are lowercase. `Finance` and `finance` would otherwise be two tags,
+and the existing corpus already holds both spellings of exactly that word.
+Dates, priorities and IDs have their own shapes and keep their case.
 
 The line schema escapes this because its tags sit behind `+` and `@`, which most
 renderers leave alone. Measured through pandoc: a `(task "` form survives intact
@@ -143,7 +142,6 @@ two never collide, wherever either one sits.
 |---|---|---|
 | `("id" ...)` | the task ID | `("id" "T3")` |
 | `("tag" ...)` | one or more values - project or kind | `("tag" "raveenkumar-xyz" "bug")` |
-| `("ctx" ...)` | one or more context values | `("ctx" "backend" "home")` |
 | `("created" ...)` | date or date-time | `("created" "2026-09-15")` |
 | `("completed" ...)` | date or date-time | `("completed" "2026-09-19")` |
 | `("due" ...)` | date or date-time | `("due" "2026-08-19T09:00")` |
@@ -212,7 +210,7 @@ title     = string                                (* non-empty *)
 string    = '"' { char - '"' - "\\" | '\\"' | "\\\\" } '"'   (* one line *)
 
 meta      = "(" key space value { space value } ")"
-key       = "id" | "tag" | "ctx" | "created" | "completed" | "due"
+key       = "id" | "tag" | "created" | "completed" | "due"
           | "recurring" | "pri" | "note"
 value     = string
 space     = ( " " | "\t" ) { " " | "\t" }
@@ -225,8 +223,8 @@ context pass decides whether a line is captured, and that pass is the whole of
 `@` are ordinary characters, because they sit in strings.
 
 `char`, `YYYY`, `MM`, `DD`, `hh` and `mm` are the obvious terminals. The state,
-key, id, tag, ctx, pri, date and recurrence shapes are validated by the reader,
-not by the grammar. The head `task` matches case-insensitively; every value is
+key, id, tag, pri, date and recurrence shapes are validated by the reader, not by
+the grammar. The head `task` matches case-insensitively; every value is
 case-sensitive.
 
 The reader is a Lisp reader plus a validation pass. The scan around it is a
@@ -248,10 +246,10 @@ A reader:
 - Rejects a repeated key. `("tag" "a") ("tag" "b")` is an error; write
   `("tag" "a" "b")`.
 - Rejects a `(key)` with no value.
-- Rejects a value that does not match its key: a `tag` or `ctx` value must be
-  lowercase kebab-case (`("tag" "Finance")` is an error, not a second tag),
-  `pri` must be `A`, `B` or `C`, a date must match the date pattern, and
-  `recurring` must be a rate or a period. A `note` is free text.
+- Rejects a value that does not match its key: a `tag` value must be lowercase
+  kebab-case (`("tag" "Finance")` is an error, not a second tag), `pri` must be
+  `A`, `B` or `C`, a date must match the date pattern, and `recurring` must be a
+  rate or a period. A `note` is free text.
 - Rejects an ID that is not `T` then digits.
 - Accepts one or more spaces between tokens, and a tab as whitespace.
 - Accepts any UTF-8 in a title or note. Only `\"` and `\\` are escapes; any
@@ -263,8 +261,8 @@ A reader:
 A writer:
 
 - Emits `(task "`. There is no synonym to choose between.
-- Emits keys in this order, skipping absent ones: `id tag ctx created completed
-  due recurring pri note`. A fixed order keeps diffs to the field that changed.
+- Emits keys in this order, skipping absent ones: `id tag created completed due
+  recurring pri note`. A fixed order keeps diffs to the field that changed.
 - Emits exactly one space between tokens.
 - Leaves every line it did not change byte-identical.
 
@@ -433,7 +431,7 @@ When summarizing todos in reports, use the [Emoji Legend](emoji_legend.md):
 ## Example
 
 ```markdown
-- (task "todo" "File quarterly GST return" ("id" "T1") ("tag" "finance") ("ctx" "home") ("created" "2026-07-01") ("due" "2026-07-20") ("pri" "A") ("note" "Collect purchase invoices from the shared drive first"))
+- (task "todo" "File quarterly GST return" ("id" "T1") ("tag" "finance") ("created" "2026-07-01") ("due" "2026-07-20") ("pri" "A") ("note" "Collect purchase invoices from the shared drive first"))
 - (task "todo" "Pay rent" ("id" "T2") ("tag" "finance") ("due" "2026-08-05") ("recurring" "monthly") ("pri" "A"))
 - (task "in-progress" "Create a methodology presentation on wiki documentation" ("id" "T3") ("note" "Showcase and demos with real use cases"))
 - (task "done" "Create discord bot with claude" ("id" "T4") ("completed" "2026-06-28"))
@@ -526,10 +524,10 @@ earlier than the day the last item converts.
 | 2026-09-23 | Both formats are valid until migration ends | Nothing reads forms yet. The line format is deleted only when every tool and every item has moved |
 | 2026-09-23 | No `who` key - a person is a tag value | Rare enough not to earn a key: 1 person mention in 9,698 task lines |
 | 2026-09-23 | No subtasks, the form is flat | Measured: 0 nested task lines in 9,698. Peers plus a shared tag cover it without teaching every tool recursion |
-| 2026-09-23 | `tag` and `ctx` stay separate | Kept apart deliberately. Measured: across 9,698 task lines `+tag` appears 51 times and `@word` 4 times, so the split is by intent, not by current usage |
+| 2026-09-23 | No `ctx` key - a context is a tag value | Removed. The split was by intent, not usage: `+tag` appears 51 times and `@word` 4 times in 9,698 task lines, so one key carries both without loss |
 | 2026-09-23 | Notes are `("note" "...")`, not sub-bullets | One mechanism everywhere, including code comments where sub-bullets do not exist. Cost: long notes make long lines, and markdown inside a note stays literal |
 | 2026-09-24 | A form inside a string literal is not allowed | The host language escapes the inner quotes, so the marker never opens and the reader reports `path:line:col`. Chosen over unescaping (rewards a bad habit) and over skipping (needs the per-language quote counting this schema deleted) |
-| 2026-09-23 | Tag and context values are lowercase | The corpus holds `+Finance` and `+finance`; case-sensitive values would keep them apart forever. Dates, priorities and IDs keep their case |
+| 2026-09-23 | Tag values are lowercase | The corpus holds `+Finance` and `+finance`; case-sensitive values would keep them apart forever. Dates, priorities and IDs keep their case |
 | 2026-09-23 | A form in a fenced block is an example, not work | Otherwise this document's own examples become tasks |
 | 2026-09-23 | An unknown or repeated key is an error | A typo like `("nite" "x")` must not silently lose the note |
 | 2026-09-23 | Writers emit keys in a fixed order | Diffs then show the field that changed, not a reshuffle |
