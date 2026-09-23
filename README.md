@@ -82,7 +82,40 @@ answer means the import did not load.
 | `inbox.md` | Inbox workflow - raw capture buffer (`docs/notes/inbox.md`) |
 | `jobs.md` | ETA rules for long-running jobs |
 | `prompts.md` | Personal paste-bin of chat prompts |
+| `skills/` | Installable agent skills (see [Skills](#skills)) |
 | `task.md` | Task protocol - kanban in `docs/notes/todo.md` / `archive.md` |
 | `todo_schema.md` | Canonical todo item format |
 | `terminologies.md` | Personal prompt-vocab notes |
 | `use_case.md` | Personal notes: what I use agents for |
+
+## Skills
+
+`skills/` holds skills in the open [Agent Skills](https://agentskills.io)
+format: one directory per skill, with a `SKILL.md` and its `scripts/`. Skill
+directories use hyphens (`git-report`) because the format requires the
+directory name to match the skill `name`.
+
+| Skill | What it does |
+|---|---|
+| `git-report` | Your commits across all your repos, local and remote, for any time window |
+
+### Install
+
+Symlink the skill into each harness's skills directory, so a `git pull` here
+updates it everywhere:
+
+```bash
+mkdir -p ~/.claude/skills ~/.agents/skills
+ln -sfn ~/repos/agents/skills/git-report ~/.claude/skills/git-report
+ln -sfn ~/repos/agents/skills/git-report ~/.agents/skills/git-report
+```
+
+| Harness | Skills directory |
+|---|---|
+| Claude Code | `~/.claude/skills/` (or install this repo as a plugin) |
+| Codex | `~/.agents/skills/` |
+| pi | `~/.agents/skills/` |
+| Any other | Paste the skill's `SKILL.md` as the prompt and give the agent the script path |
+
+Verify: start a new session and ask "what git work did I do in the last 24
+hours?". The agent should run `scripts/git_report.py`.

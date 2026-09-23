@@ -1,85 +1,5 @@
-# Git report one-shot prompt
-
-Paste the block below to an agent on your own machine. It fetches every repo
-listed in your config and reports the commits you made in a time window.
-With no window given, it reports the last 24 hours up to now.
-
-Each teammate keeps their own config at `~/.local/git_report.toml`. The prompt
-contains no personal paths or emails.
-
-## Config
-
-Create `~/.local/git_report.toml`:
-
-```toml
-# Directories scanned recursively; every git repo below each one is included.
-dirs = [
-  "~/repos",
-]
-
-# Single repos: a local path or a remote URL.
-# Remote URLs are mirror-cloned into ~/.cache/git_report/ on first use.
-repos = []
-
-# Author emails that count as mine (case-insensitive).
-emails = [
-  "me@company.com",
-]
-```
-
-## Rules the script enforces
-
-- **Repos:** Every git repo under `dirs`, plus each entry in `repos`. Submodules and nested repos are included. Worktrees and duplicates are counted once.
-- **Commits:** Local and remote commits on all branches. Merge commits are skipped.
-- **Authors:** Only commits whose author email is in `emails`.
-- **Time:** The author date must fall inside the window. A rebased or amended copy of the same commit is listed once.
-- **Safety:** Read-only. The script only runs `git fetch` and, for remote URLs, `git clone --mirror` into `~/.cache/git_report/`. Fetch never prompts for a password. If a fetch fails, the report says so and uses the local data.
-- **Requirements:** git 2.31+ and python 3.11+.
-
-## Prompt
-
-````text
-Report the git work I did in a time window, using ONLY the script below.
-
-============================================================
-WINDOW
-============================================================
-
-1. If I gave no window, use the default: the last 24 hours ending now.
-   Run the script with no --start or --end flags.
-2. If I gave a window, convert it to local time in the form
-   "YYYY-MM-DD HH:MM" (or "YYYY-MM-DD" for midnight). Work out relative
-   phrases ("yesterday 11am to 4am today", "since Monday") from the
-   current local date and time (run `date` to get it). Pass --start and
-   --end. If I gave only a start, omit --end (it defaults to now).
-3. If the window is ambiguous, ask me one question before running
-   anything.
-
-============================================================
-HARD RULES
-============================================================
-
-- Run the script exactly as written. Do not edit it, and do not replace it
-  with your own git commands.
-- Read-only. Never pull, checkout, reset, stash, commit, push, or change git
-  config in any repo.
-- Report only what the script outputs. Never invent, merge, or drop
-  commits, and never add authors that are not in the config.
-- If the script prints a line starting with "ERROR:", stop. Show me that
-  line and how to fix it. If the config is missing, tell me to create
-  ~/.local/git_report.toml with this template:
-    dirs = ["~/repos"]
-    repos = []
-    emails = ["me@company.com"]
-
-============================================================
-STEP 1 - RUN
-============================================================
-
-Run this from any directory. Replace the flags as described under WINDOW.
-It can take a few minutes, because it fetches every repo first.
-
-python3 - --start "YYYY-MM-DD HH:MM" --end "YYYY-MM-DD HH:MM" <<'PY'
+#!/usr/bin/env python3
+"""Collect a person's git commits across their repos for a time window; prints JSON."""
 import concurrent.futures, datetime, json, os, re, subprocess, sys
 
 if sys.version_info < (3, 11):
@@ -200,7 +120,10 @@ def commits(repo, bare, start, end, emails):
 
 
 def main():
-    args = dict(zip(sys.argv[1::2], sys.argv[2::2]))
+    argv = sys.argv[1:]
+    if len(argv) % 2 or any(k not in ("--start", "--end") for k in argv[::2]):
+        sys.exit("ERROR: usage: git_report.py [--start 'YYYY-MM-DD HH:MM'] [--end 'YYYY-MM-DD HH:MM']")
+    args = dict(zip(argv[::2], argv[1::2]))
     end = parse_time(args["--end"]) if args.get("--end") else datetime.datetime.now().astimezone()
     start = parse_time(args["--start"]) if args.get("--start") else end - datetime.timedelta(hours=24)
     if start >= end:
@@ -257,32 +180,3 @@ def main():
 
 
 main()
-PY
-
-The output is JSON:
-- window: the start and end that were used
-- repos_scanned: the number of unique repos
-- repos_with_commits: for each repo, its commits with time, hash, author,
-  subject, body, stat, branches, and pushed (false = local-only)
-- skipped: config entries that do not exist or failed to clone
-- fetch_failed: repos whose fetch failed (their remote data may be stale)
-
-============================================================
-STEP 2 - REPORT
-============================================================
-
-Write the report as plain text in chat. Do not create a file.
-
-1. Header line: the window (start to end, with the timezone), the total
-   number of commits, and the number of repos with commits.
-2. Group commits by repo (use the repo folder name), in time order.
-3. One line per commit: time (HH:MM, with the date when the window spans
-   several days), short hash, branch, pushed or local-only, a
-   plain-language summary drawn from the subject and body (not the raw
-   subject line), size (+/- lines when notable), and author email.
-4. "Themes": 3 bullets that group the work by topic.
-5. "Skipped" and "Fetch failed": list each entry with its reason. Leave a
-   section out if it is empty.
-6. If there are no commits, say so plainly and still show sections 5.
-7. End with one next action.
-````
