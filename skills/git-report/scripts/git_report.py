@@ -169,10 +169,34 @@ def resolve_repos(cfg, clone=True):
     return repos, skipped
 
 
-def window(cfg, args):
-    # Any flag overrides the config window as a whole, so a stale config
-    # start or end never mixes with a flag.
-    if args:
+SHORTCUT = re.compile(r"^(-?\d+)\s*(d|days?|w|wk|weeks?)?$", re.I)
+
+
+def shortcut(text):
+    """0d today, -1d yesterday, -Nd that one day; -N last N days and -Nw last
+    N weeks, both counting today and ending now. Returns (start, end)."""
+    m = SHORTCUT.match(text.strip())
+    n = int(m.group(1)) if m else 1
+    unit = (m.group(2) or "").lower()[:1] if m else ""
+    if not m or n > 0 or (n == 0 and unit != "d"):
+        sys.exit(f"ERROR: bad window {text!r}; use 0d, -1d, -Nd, -N or -Nw (e.g. -1 week)")
+    now = datetime.datetime.now().astimezone()
+    today = now.date()
+    def midnight(days_ago):
+        d = today - datetime.timedelta(days=days_ago)
+        return datetime.datetime.combine(d, datetime.time()).astimezone()
+    if unit == "d":  # one calendar day
+        return midnight(-n), now if n == 0 else midnight(-n - 1)
+    days = -n * 7 if unit == "w" else -n  # whole days, today included
+    return midnight(days - 1), now
+
+
+def window(cfg, args, short=None):
+    # Any flag or shortcut overrides the config window as a whole, so a stale
+    # config start or end never mixes with it.
+    if short:
+        (start, end), source = shortcut(short), f"shortcut {short}"
+    elif args:
         source, start, end = "flags", args.get("--start"), args.get("--end")
         start, end = start and parse_time(start), end and parse_time(end)
     elif "start" in cfg or "end" in cfg:
@@ -242,6 +266,8 @@ def suggest():
 
 USAGE = """usage:
   git_report.py [--start 'YYYY-MM-DD HH:MM'] [--end 'YYYY-MM-DD HH:MM']
+  git_report.py WINDOW      0d today, -1d yesterday, -Nd that one day,
+                            -N last N days, -Nw or '-N week' last N weeks
   git_report.py --check [--start ...] [--end ...]   validate config, no fetch
   git_report.py --suggest                           suggest config values"""
 
@@ -252,11 +278,16 @@ def main():
         return suggest()
     check = "--check" in argv
     argv = [a for a in argv if a != "--check"]
+    # Shortcut words come before any flag: "-1d", or "-1 week" as two words.
+    i = next((j for j, a in enumerate(argv) if a.startswith("--")), len(argv))
+    short, argv = " ".join(argv[:i]), argv[i:]
     if len(argv) % 2 or any(k not in ("--start", "--end") for k in argv[::2]):
         sys.exit("ERROR: " + USAGE)
+    if short and argv:
+        sys.exit("ERROR: give a window shortcut or --start/--end, not both")
     args = dict(zip(argv[::2], argv[1::2]))
     cfg = load_config()
-    start, end, win = window(cfg, args)
+    start, end, win = window(cfg, args, short)
     emails = {e.lower() for e in cfg["emails"]}
 
     if check:
