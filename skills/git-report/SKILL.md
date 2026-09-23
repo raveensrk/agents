@@ -31,6 +31,12 @@ data; you only choose the window and write the report.
   # Optional. Window used when no start is given: the last N hours up to
   # the end. Any number above 0 (168 = one week). Defaults to 24.
   default_hours = 24
+
+  # Optional. A fixed window, in local time. Either key may be left out:
+  # no end means now; no start means default_hours before the end.
+  # Any --start or --end flag replaces both keys.
+  # start = "2026-09-22 11:00"
+  # end = "2026-09-23 04:00"
   ```
 
 ## What the script counts
@@ -54,8 +60,9 @@ data; you only choose the window and write the report.
 
 ## Step 1 - Window
 
-1. If the user gave no window, pass no flags. The script uses the last
-   `default_hours` from the config (24 if unset), ending now.
+1. If the user gave no window, pass no flags. The script uses the config's
+   `start` and `end` if set, otherwise the last `default_hours` (24 if
+   unset) ending now.
 2. If the user gave a window, convert it to local time in the form
    `YYYY-MM-DD HH:MM` (or `YYYY-MM-DD` for midnight). Work out relative
    phrases ("yesterday 11am to 4am today", "since Monday") from the current
@@ -63,6 +70,9 @@ data; you only choose the window and write the report.
    start, omit `--end` (it defaults to now). With only an end, omit
    `--start` (it defaults to `default_hours` before the end).
 3. If the window is ambiguous, ask one question before running anything.
+
+Window precedence: flags, then config `start`/`end`, then `default_hours`.
+Any flag replaces the config window as a whole.
 
 ## Step 2 - Run
 
@@ -75,7 +85,8 @@ python3 <skill_dir>/scripts/git_report.py --start "YYYY-MM-DD HH:MM" --end "YYYY
 
 The output is JSON:
 
-- `window`: the start and end that were used
+- `window`: the start and end that were used, and `source` (`flags`,
+  `config` or `default_hours`)
 - `repos_scanned`: the number of unique repos
 - `repos_with_commits`: for each repo, its commits with `time`, `hash`,
   `author`, `subject`, `body`, `stat`, `branches`, and `pushed`
@@ -88,7 +99,9 @@ The output is JSON:
 Write the report as plain text in chat. Do not create a file.
 
 1. Header line: the window (start to end, with the timezone), the total
-   number of commits, and the number of repos with commits.
+   number of commits, and the number of repos with commits. If
+   `window.source` is `config`, say the window came from the config file,
+   since a fixed window there goes stale.
 2. Group commits by repo (use the repo folder name), in time order.
 3. One line per commit: time (`HH:MM`, with the date when the window spans
    several days), short hash, branch, pushed or local-only, a plain-language

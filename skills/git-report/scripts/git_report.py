@@ -12,6 +12,12 @@ PRUNE = {"node_modules", ".venv", "venv", "__pycache__"}
 
 
 def parse_time(s):
+    if isinstance(s, datetime.datetime):  # TOML datetime; naive means local time
+        return s.astimezone()
+    if isinstance(s, datetime.date):  # TOML date: midnight local time
+        return datetime.datetime.combine(s, datetime.time()).astimezone()
+    if not isinstance(s, str):
+        sys.exit(f"ERROR: bad time {s!r}; use 'YYYY-MM-DD HH:MM' or 'YYYY-MM-DD'")
     for fmt in ("%Y-%m-%d %H:%M", "%Y-%m-%d"):
         try:
             return datetime.datetime.strptime(s.strip(), fmt).astimezone()
@@ -54,6 +60,9 @@ def load_config():
     if isinstance(hours, bool) or not isinstance(hours, (int, float)) or hours <= 0:
         sys.exit(f"ERROR: 'default_hours' in {CONFIG} must be a number above 0")
     cfg["default_hours"] = hours
+    for key in ("start", "end"):
+        if key in cfg:
+            cfg[key] = parse_time(cfg[key])
     return cfg
 
 
@@ -129,9 +138,17 @@ def main():
         sys.exit("ERROR: usage: git_report.py [--start 'YYYY-MM-DD HH:MM'] [--end 'YYYY-MM-DD HH:MM']")
     args = dict(zip(argv[::2], argv[1::2]))
     cfg = load_config()
-    end = parse_time(args["--end"]) if args.get("--end") else datetime.datetime.now().astimezone()
-    start = (parse_time(args["--start"]) if args.get("--start")
-             else end - datetime.timedelta(hours=cfg["default_hours"]))
+    # Any flag overrides the config window as a whole, so a stale config
+    # start or end never mixes with a flag.
+    if args:
+        source, start, end = "flags", args.get("--start"), args.get("--end")
+        start, end = start and parse_time(start), end and parse_time(end)
+    elif "start" in cfg or "end" in cfg:
+        source, start, end = "config", cfg.get("start"), cfg.get("end")
+    else:
+        source, start, end = "default_hours", None, None
+    end = end or datetime.datetime.now().astimezone()
+    start = start or end - datetime.timedelta(hours=cfg["default_hours"])
     if start >= end:
         sys.exit(f"ERROR: start {start} is not before end {end}")
     emails = {e.lower() for e in cfg["emails"]}
@@ -178,7 +195,8 @@ def main():
             report.append({"repo": path, "local_only_repo": results[k] == "no remote", "commits": c})
 
     json.dump({
-        "window": {"start": start.isoformat(timespec="minutes"), "end": end.isoformat(timespec="minutes")},
+        "window": {"start": start.isoformat(timespec="minutes"),
+                   "end": end.isoformat(timespec="minutes"), "source": source},
         "repos_scanned": len(repos), "repos_with_commits": report,
         "skipped": skipped, "fetch_failed": failed,
     }, sys.stdout, indent=1, ensure_ascii=False)
