@@ -229,7 +229,8 @@ A reader:
   the two characters backslash and n, because a string never spans lines.
 - Reports every rejection as `path:line:col` and exits non-zero.
 
-A writer:
+A writer, verified on 2026-09-23 across 9,698 converted items with no lossy
+round-trip and no unstable rewrite:
 
 - Emits `@(`, never `#(`.
 - Emits keys in this order, skipping absent ones: `tag ctx created completed due
@@ -304,6 +305,15 @@ Rules:
 
 - In a source file, only scan text that follows a comment marker. Code is then
   invisible to the extractor, which is what drops false positives to near zero.
+- A comment marker inside a string is not a comment:
+
+  ```rust
+  let s = "// @(todo T1 \"fake task\")";
+  ```
+
+  A reader that does not lex the language must at least count the quotes before
+  the marker on that line. An odd count means the marker sits inside a string,
+  and the line is skipped.
 - A form may continue onto the next line. The reader first strips a leading run
   of `*`, `//`, `#`, `;` and whitespace from each continuation line.
 - A quoted title or note never spans lines.
@@ -420,6 +430,7 @@ None. Every question this document opened is answered in
 | 2026-09-23 | No subtasks, the form is flat | Measured: 0 nested task lines in 9,698. Peers plus a shared tag cover it without teaching every tool recursion |
 | 2026-09-23 | `(tag ...)` and `(ctx ...)` stay separate | Kept apart deliberately. Measured: across 9,698 task lines `+tag` appears 51 times and `@word` 4 times, so the split is by intent, not by current usage |
 | 2026-09-23 | Notes are `(note "...")`, not sub-bullets | One mechanism everywhere, including code comments where sub-bullets do not exist. Cost: long notes make long lines, and markdown inside a note stays literal |
+| 2026-09-23 | A comment marker inside a string is not a comment | `let s = "// @(todo ...)"` would otherwise index as a task. Counting quotes before the marker is enough without a full lexer |
 | 2026-09-23 | Symbols are lowercase | The corpus holds `+Finance` and `+finance`; case-sensitive symbols would keep them apart forever |
 | 2026-09-23 | A form in a fenced block is an example, not work | Otherwise this document's own examples become tasks |
 | 2026-09-23 | An unknown or repeated key is an error | A typo like `(nite "x")` must not silently lose the note |
