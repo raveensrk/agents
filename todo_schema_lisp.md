@@ -87,11 +87,14 @@ Measured 2026-09-23 against pandoc's GitHub-flavoured renderer and `grep`:
 Square and angle brackets are out on evidence, not taste: `- <todo>` renders as
 an empty bullet, and `grep '[todo'` is a syntax error.
 
-### Symbols use kebab-case
+### Symbols are lowercase kebab-case
 
 Markdown italicizes paired `_` inside a list item, so a bare symbol like
 `raveen_kumar_xyz` renders as `raveen*kumar*xyz`. Symbols use kebab-case
 instead: `raveenkumar-xyz`, `in-progress`. An underscore is invalid in a symbol.
+
+Symbols are lowercase. `Finance` and `finance` would otherwise be two tags, and
+the existing corpus already holds both spellings of exactly that word.
 
 The line schema escapes this because its tags sit behind `+` and `@`, which most
 renderers leave alone.
@@ -219,6 +222,8 @@ A reader:
   like `(nite "x")` must not lose the note.
 - Rejects a repeated key. `(tag a) (tag b)` is an error; write `(tag a b)`.
 - Rejects a `(key)` with no value.
+- Rejects an uppercase letter in a symbol. `(tag Finance)` is an error, not a
+  second tag.
 - Accepts one or more spaces between tokens, and a tab as whitespace.
 - Accepts any UTF-8 in a title or note. Only `\"` and `\\` are escapes; `\n` is
   the two characters backslash and n, because a string never spans lines.
@@ -356,7 +361,7 @@ When summarizing todos in reports, use the [Emoji Legend](emoji_legend.md):
 | Repeated tags | `+a +b` | `(tag a b)` |
 | In code comments | not expressible | native |
 | Notes | sub-bullets, prose only | `(note "...")`, same line |
-| First example line | 91 chars | 174 chars, 1.9x - the note moved onto the line |
+| Line length | - | +10 chars median, +22 worst, measured converting 9,698 real items |
 | Renders as a bullet | yes | yes |
 | Underscores in tags | allowed | invalid |
 | Malformed by an agent | rare | unbalanced parens |
@@ -374,8 +379,10 @@ The work, in order:
    depend on it, including the writer and three test suites.
 3. Writer: emit forms instead of lines, keeping every untouched line verbatim.
 4. Code scanner: a second source that reads comment text in source files.
-5. Data: 9,698 task lines convert. Mechanical, but one pass over every notes
-   file in the vault.
+5. Data: 9,698 task lines convert. Trial-run on 2026-09-23 - all 9,698 were
+   converted and reparsed with no failures, growing by 10 characters at the
+   median and 22 at the worst. The converter normalises two things: symbols fold
+   to lowercase, and `_` becomes `-`. No title needed a `\"` escape.
 6. The Python snapshot script keeps its own copy of the line regex and needs the
    same treatment.
 
@@ -413,6 +420,7 @@ None. Every question this document opened is answered in
 | 2026-09-23 | No subtasks, the form is flat | Measured: 0 nested task lines in 9,698. Peers plus a shared tag cover it without teaching every tool recursion |
 | 2026-09-23 | `(tag ...)` and `(ctx ...)` stay separate | Kept apart deliberately. Measured: across 9,698 task lines `+tag` appears 51 times and `@word` 4 times, so the split is by intent, not by current usage |
 | 2026-09-23 | Notes are `(note "...")`, not sub-bullets | One mechanism everywhere, including code comments where sub-bullets do not exist. Cost: long notes make long lines, and markdown inside a note stays literal |
+| 2026-09-23 | Symbols are lowercase | The corpus holds `+Finance` and `+finance`; case-sensitive symbols would keep them apart forever |
 | 2026-09-23 | A form in a fenced block is an example, not work | Otherwise this document's own examples become tasks |
 | 2026-09-23 | An unknown or repeated key is an error | A typo like `(nite "x")` must not silently lose the note |
 | 2026-09-23 | Writers emit keys in a fixed order | Diffs then show the field that changed, not a reshuffle |
