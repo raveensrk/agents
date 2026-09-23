@@ -40,6 +40,8 @@ When you drive any application with browser use or computer use, maximize that w
 - Punctuation: use plain hyphens (`-`) only; never em dashes (`—`) or en dashes (`–`).
 - Write code and docs that is easily greppable. `find`, `rg` and `grep` must easily find any information.
 - An actionable list must always be a numbered list. This is so I can reply referring to those numbers.
+- When you offer choices, number them and show a concrete example of each. An option I cannot see is not an option I can pick.
+- Keep each option with its example: the option, then its example immediately below it, then the next option. Never list every option first and the examples afterwards.
 
 The reader has ADHD. Shape every response so it can be acted on:
 
