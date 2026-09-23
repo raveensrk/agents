@@ -24,13 +24,13 @@ share one flat line. Parentheses separate them, so a reader replaces the regex.
 In a markdown file:
 
 ```markdown
-- @(state id "title" (key value ...) ...)
+- @(<state> <id> "<title>" (<key> <value>...) ...)
 ```
 
 In a source file, after any comment marker:
 
 ```rust
-// @(state id "title" (key value ...) ...)
+// @(<state> <id> "<title>" (<key> <value>...) ...)
 ```
 
 One item is one balanced form. In markdown it stays on one line, so `grep`,
@@ -51,8 +51,9 @@ lines, because a comment is often narrower than the form; see
   `@`, URLs - is literal text, so a title can never look like metadata.
 - Metadata are nested forms after the title, in any order. Every one is
   optional.
-- Nothing follows the closing paren on a markdown line. In a source file a
-  comment terminator may follow: `/* @(todo "x") */` is valid.
+- Nothing follows the closing paren on a markdown line. In a source file one
+  comment terminator may follow - `*/`, `-->` or `#|` - and nothing else:
+  `/* @(todo "x") */` is valid, `@(todo "x") see also foo` is not.
 - A markdown item may be indented. Leading whitespace is not part of the item.
 - Everything is case-sensitive. States and keys are lowercase; `@(TODO ...)` is
   not a task. An ID is an uppercase `T` then digits: `T3`, never `t3`.
@@ -257,7 +258,9 @@ Why no library carries its weight here:
 - The existing Rust implementation of the line schema already hand-writes a
   275-line total parser with no parsing library, and nine files depend on it.
 
-The reader is ~40 lines. A library would replace maybe 20 of them.
+Measured: a reader written from this document alone is 60 lines of Python.
+It parses every example here and rejects all ten hostile inputs tried against
+it. A library would replace maybe 20 of those lines.
 
 ### Flat by design
 
@@ -348,7 +351,7 @@ When summarizing todos in reports, use the [Emoji Legend](emoji_legend.md):
 
 | Aspect | Line schema | This |
 |---|---|---|
-| Parser | one regex, ~400 chars | ~40-line reader |
+| Parser | one regex, ~400 chars | 60-line reader |
 | Title ambiguity | title must not end like metadata | quoted, no ambiguity |
 | Repeated tags | `+a +b` | `(tag a b)` |
 | In code comments | not expressible | native |
@@ -365,8 +368,8 @@ the item invisible to every existing tool.
 
 The work, in order:
 
-1. Reader: ~40 lines, scanning `@(`, balanced parens, quoted strings, with
-   `path:line:col` errors.
+1. Reader: 60 lines, scanning `@(`, balanced parens, quoted strings, with
+   `path:line:col` errors. A working Python one exists.
 2. Parser: replace the 275-line total parser for the line format. Nine files
    depend on it, including the writer and three test suites.
 3. Writer: emit forms instead of lines, keeping every untouched line verbatim.
