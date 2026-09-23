@@ -2,6 +2,11 @@
 
 Canonical format for todo items in `inbox.md`, `todo.md`, and task lists.
 
+**Legacy, during migration.** [Todo Schema (Lisp)](todo_schema_lisp.md) is where
+the format is going. This one still parses and is still written by the existing
+tools, but it takes no new features, and it is deleted once every item and every
+tool has moved. Both formats are valid until then, and a file may hold a mix.
+
 ## Inspiration
 
 [todo.txt format](https://github.com/todotxt/todo.txt/blob/master/README.md)
