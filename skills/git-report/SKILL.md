@@ -1,6 +1,6 @@
 ---
 name: git-report
-description: Report the git commits a person made across all their repos, local and remote, all branches, for any time window (default the last 24 hours, configurable). Use when the user asks what they worked on, for a work log, standup notes, a daily or weekly report, or "my commits since X".
+description: Report the git commits a person made across all their repos, local and remote, all branches, for any time window (default the last 24 hours, configurable). Use when the user asks what they worked on, for a work log, standup notes, a daily or weekly report, or "my commits since X". Also sets up or edits its config (~/.local/git_report.toml), suggesting values from this machine.
 ---
 
 # Git report
@@ -58,7 +58,48 @@ data; you only choose the window and write the report.
 - Report only what the script outputs. Never invent, merge, or drop commits,
   and never add authors that are not in the config.
 - If the script prints a line starting with `ERROR:`, stop. Show that line
-  and how to fix it. If the config is missing, show the template above.
+  and how to fix it. If the config is missing, offer to set it up (see
+  Setup).
+
+## Setup - write or edit the config
+
+Use this when the config is missing, when the user asks to set up or change
+it, or when `--check` reports a problem.
+
+1. Gather suggestions. This reads only and writes nothing:
+
+   ```bash
+   python3 <skill_dir>/scripts/git_report.py --suggest
+   ```
+
+   - `dirs`: top-level folders under home that hold git repos, with a repo
+     count.
+   - `emails`: emails from git config (global, per repo, current directory),
+     with how many commits each authored. Never from other people's commits.
+   - `config_exists`: whether a config is already there.
+2. Add what this session already knows: emails, folders or remote repos the
+   user mentioned, and the current working directory.
+3. Propose the values as a numbered list, each with a one-line reason, and
+   flag doubtful ones instead of dropping them silently:
+   - `dirs`: prefer project folders (like `~/repos`). Flag scratch or
+     download folders (`~/Downloads`, `~/tmp`) and let the user choose.
+   - `emails`: flag test or placeholder addresses (`example.com`,
+     `localhost`) and emails with very few commits.
+   - `repos`: only remote URLs or paths the user named.
+   - Window: `default_hours = 24` unless the user wants otherwise.
+4. Wait for the user to confirm or edit the list.
+5. Write the file with the template in Requirements. If a config already
+   exists, show the exact diff first, get a yes, and copy the old file to
+   `~/.local/git_report.toml.bak` before writing.
+6. Validate. It reads the config and finds repos without fetching:
+
+   ```bash
+   python3 <skill_dir>/scripts/git_report.py --check
+   ```
+
+   Show `repos_found`, `emails` and any `skipped` entries. `config_ok` is
+   false when an entry is skipped or no repo is found. Fix and rerun until it
+   is true.
 
 ## Step 1 - Window
 

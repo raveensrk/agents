@@ -134,28 +134,9 @@ def commits(repo, bare, start, end, emails):
     return sorted(out.values(), key=lambda c: c["time"])
 
 
-def main():
-    argv = sys.argv[1:]
-    if len(argv) % 2 or any(k not in ("--start", "--end") for k in argv[::2]):
-        sys.exit("ERROR: usage: git_report.py [--start 'YYYY-MM-DD HH:MM'] [--end 'YYYY-MM-DD HH:MM']")
-    args = dict(zip(argv[::2], argv[1::2]))
-    cfg = load_config()
-    # Any flag overrides the config window as a whole, so a stale config
-    # start or end never mixes with a flag.
-    if args:
-        source, start, end = "flags", args.get("--start"), args.get("--end")
-        start, end = start and parse_time(start), end and parse_time(end)
-    elif "start" in cfg or "end" in cfg:
-        source, start, end = "config", cfg.get("start"), cfg.get("end")
-    else:
-        source, start, end = "default_hours", None, None
-    end = end or datetime.datetime.now().astimezone()
-    start = start or end - datetime.timedelta(hours=cfg["default_hours"])
-    if start >= end:
-        sys.exit(f"ERROR: start {start} is not before end {end}")
-    emails = {e.lower() for e in cfg["emails"]}
-    skipped, failed, found = [], [], []
-
+def resolve_repos(cfg, clone=True):
+    """Unique repos from dirs and repos: {git common dir: (worktree path, is_mirror)}."""
+    skipped, found = [], []
     for d in cfg["dirs"]:
         p = os.path.expanduser(d)
         if os.path.isdir(p):
@@ -164,6 +145,8 @@ def main():
             skipped.append(f"dirs: {d} (not a directory)")
     for entry in cfg["repos"]:
         if is_url(entry):
+            if not clone:  # --check never clones
+                continue
             path, err = mirror(entry)
             if path:
                 found.append((path, True))
@@ -183,7 +166,111 @@ def main():
             skipped.append(f"{path} (not readable as a git repo)")
             continue
         repos.setdefault(os.path.realpath(r.stdout.strip()), (os.path.realpath(path), bare))
+    return repos, skipped
 
+
+def window(cfg, args):
+    # Any flag overrides the config window as a whole, so a stale config
+    # start or end never mixes with a flag.
+    if args:
+        source, start, end = "flags", args.get("--start"), args.get("--end")
+        start, end = start and parse_time(start), end and parse_time(end)
+    elif "start" in cfg or "end" in cfg:
+        source, start, end = "config", cfg.get("start"), cfg.get("end")
+    else:
+        source, start, end = "default_hours", None, None
+    end = end or datetime.datetime.now().astimezone()
+    start = start or end - datetime.timedelta(hours=cfg["default_hours"])
+    if start >= end:
+        sys.exit(f"ERROR: start {start} is not before end {end}")
+    return start, end, {"start": start.isoformat(timespec="minutes"),
+                        "end": end.isoformat(timespec="minutes"), "source": source}
+
+
+SUGGEST_SKIP = {"Library", "Applications", "Movies", "Music", "Pictures"}
+
+
+def tilde(path):
+    home = os.path.expanduser("~")
+    return "~" + path[len(home):] if path == home or path.startswith(home + os.sep) else path
+
+
+def suggest():
+    """Suggest config values from this machine. Reads only; writes nothing."""
+    home = os.path.expanduser("~")
+    roots = []  # repo roots up to 4 levels below home, not inside other repos
+    for dirpath, dirnames, filenames in os.walk(home, onerror=lambda e: None):
+        depth = dirpath[len(home):].count(os.sep)
+        if dirpath != home and (".git" in dirnames or ".git" in filenames):
+            roots.append(dirpath)
+            dirnames[:] = []
+            continue
+        dirnames[:] = [d for d in dirnames if not d.startswith(".") and d not in PRUNE
+                       and not (dirpath == home and d in SUGGEST_SKIP) and depth < 4]
+    groups = {}
+    for r in roots:
+        top = os.path.join(home, os.path.relpath(r, home).split(os.sep)[0])
+        groups[top] = groups.get(top, 0) + 1
+
+    # Candidate emails come only from git config (global and per repo), never
+    # from other people's commits.
+    sources = {}
+    def add(email, where):
+        if email.strip():
+            sources.setdefault(email.strip().lower(), set()).add(where)
+    add(git(home, "config", "--global", "--get", "user.email").stdout, "global git config")
+    for r in roots:
+        add(git(r, "config", "--get", "user.email").stdout, tilde(r))
+    add(git(os.getcwd(), "config", "--get", "user.email").stdout, "current directory")
+    counts = dict.fromkeys(sources, 0)
+    for r in roots:
+        for ae in git(r, "log", "--all", "--format=%ae", timeout=300).stdout.split():
+            if ae.lower() in counts:
+                counts[ae.lower()] += 1
+
+    json.dump({
+        "config_path": tilde(CONFIG), "config_exists": os.path.isfile(CONFIG),
+        "dirs": [{"dir": tilde(d), "repos": n} for d, n in sorted(groups.items())],
+        "emails": [{"email": e, "commits": counts[e],
+                    "from": sorted(w for w in sources[e] if not w.startswith("~"))
+                    + [f"{sum(w.startswith('~') for w in sources[e])} repo config(s)"]
+                    * any(w.startswith("~") for w in sources[e])}
+                   for e in sorted(sources, key=lambda e: -counts[e])],
+        "default_hours": 24,
+    }, sys.stdout, indent=1, ensure_ascii=False)
+
+
+USAGE = """usage:
+  git_report.py [--start 'YYYY-MM-DD HH:MM'] [--end 'YYYY-MM-DD HH:MM']
+  git_report.py --check [--start ...] [--end ...]   validate config, no fetch
+  git_report.py --suggest                           suggest config values"""
+
+
+def main():
+    argv = sys.argv[1:]
+    if argv == ["--suggest"]:
+        return suggest()
+    check = "--check" in argv
+    argv = [a for a in argv if a != "--check"]
+    if len(argv) % 2 or any(k not in ("--start", "--end") for k in argv[::2]):
+        sys.exit("ERROR: " + USAGE)
+    args = dict(zip(argv[::2], argv[1::2]))
+    cfg = load_config()
+    start, end, win = window(cfg, args)
+    emails = {e.lower() for e in cfg["emails"]}
+
+    if check:
+        repos, skipped = resolve_repos(cfg, clone=False)
+        urls = sum(map(is_url, cfg["repos"]))
+        json.dump({"config_ok": not skipped and bool(repos or urls),
+                   "config_path": tilde(CONFIG), "window": win,
+                   "repos_found": len(repos), "remote_urls": urls,
+                   "emails": sorted(emails), "skipped": skipped},
+                  sys.stdout, indent=1, ensure_ascii=False)
+        return
+
+    repos, skipped = resolve_repos(cfg)
+    failed = []
     with concurrent.futures.ThreadPoolExecutor(8) as ex:
         results = dict(zip(repos, ex.map(lambda k: fetch(repos[k][0]), repos)))
     for k, err in results.items():
@@ -197,9 +284,7 @@ def main():
             report.append({"repo": path, "local_only_repo": results[k] == "no remote", "commits": c})
 
     json.dump({
-        "window": {"start": start.isoformat(timespec="minutes"),
-                   "end": end.isoformat(timespec="minutes"), "source": source},
-        "repos_scanned": len(repos), "repos_with_commits": report,
+        "window": win, "repos_scanned": len(repos), "repos_with_commits": report,
         "skipped": skipped, "fetch_failed": failed,
     }, sys.stdout, indent=1, ensure_ascii=False)
 
