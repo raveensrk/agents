@@ -173,4 +173,14 @@ Write the report as plain text in chat. Do not create a file.
 5. "Skipped" and "Fetch failed": list each entry with its reason. Leave a
    section out if it is empty.
 6. If there are no commits, say so plainly and still show item 5.
-7. End with one next action.
+7. "Summary for others", last: one paragraph of 3 to 5 sentences that a
+   non-engineer (a manager or teammate) can read, ready to paste into a
+   standup or status update.
+   - First person ("I ..."), plain words, past tense.
+   - Say what was worked on and what it achieved, grouped by topic, biggest
+     first.
+   - No hashes, branch names, file paths, line counts, emails, or tool
+     jargon. Explain a technical term in a few words or leave it out.
+   - Only claim what the commits show. Do not guess at impact.
+   - With no commits, write one sentence saying no commits were made in
+     the window.
