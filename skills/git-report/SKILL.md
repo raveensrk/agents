@@ -1,6 +1,6 @@
 ---
 name: git-report
-description: Report the git commits a person made across all their repos, local and remote, all branches, for any time window (default the last 24 hours). Use when the user asks what they worked on, for a work log, standup notes, a daily or weekly report, or "my commits since X".
+description: Report the git commits a person made across all their repos, local and remote, all branches, for any time window (default the last 24 hours, configurable). Use when the user asks what they worked on, for a work log, standup notes, a daily or weekly report, or "my commits since X".
 ---
 
 # Git report
@@ -27,6 +27,10 @@ data; you only choose the window and write the report.
   emails = [
     "me@company.com",
   ]
+
+  # Optional. Window used when no start is given: the last N hours up to
+  # the end. Any number above 0 (168 = one week). Defaults to 24.
+  default_hours = 24
   ```
 
 ## What the script counts
@@ -50,13 +54,14 @@ data; you only choose the window and write the report.
 
 ## Step 1 - Window
 
-1. If the user gave no window, use the default: the last 24 hours ending
-   now. Pass no flags.
+1. If the user gave no window, pass no flags. The script uses the last
+   `default_hours` from the config (24 if unset), ending now.
 2. If the user gave a window, convert it to local time in the form
    `YYYY-MM-DD HH:MM` (or `YYYY-MM-DD` for midnight). Work out relative
    phrases ("yesterday 11am to 4am today", "since Monday") from the current
    local date and time (run `date`). Pass `--start` and `--end`. With only a
-   start, omit `--end` (it defaults to now).
+   start, omit `--end` (it defaults to now). With only an end, omit
+   `--start` (it defaults to `default_hours` before the end).
 3. If the window is ambiguous, ask one question before running anything.
 
 ## Step 2 - Run

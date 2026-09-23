@@ -50,6 +50,10 @@ def load_config():
         sys.exit(f"ERROR: 'emails' in {CONFIG} is empty")
     if not cfg["dirs"] and not cfg["repos"]:
         sys.exit(f"ERROR: 'dirs' and 'repos' in {CONFIG} are both empty")
+    hours = cfg.get("default_hours", 24)
+    if isinstance(hours, bool) or not isinstance(hours, (int, float)) or hours <= 0:
+        sys.exit(f"ERROR: 'default_hours' in {CONFIG} must be a number above 0")
+    cfg["default_hours"] = hours
     return cfg
 
 
@@ -124,11 +128,12 @@ def main():
     if len(argv) % 2 or any(k not in ("--start", "--end") for k in argv[::2]):
         sys.exit("ERROR: usage: git_report.py [--start 'YYYY-MM-DD HH:MM'] [--end 'YYYY-MM-DD HH:MM']")
     args = dict(zip(argv[::2], argv[1::2]))
+    cfg = load_config()
     end = parse_time(args["--end"]) if args.get("--end") else datetime.datetime.now().astimezone()
-    start = parse_time(args["--start"]) if args.get("--start") else end - datetime.timedelta(hours=24)
+    start = (parse_time(args["--start"]) if args.get("--start")
+             else end - datetime.timedelta(hours=cfg["default_hours"]))
     if start >= end:
         sys.exit(f"ERROR: start {start} is not before end {end}")
-    cfg = load_config()
     emails = {e.lower() for e in cfg["emails"]}
     skipped, failed, found = [], [], []
 
