@@ -7,6 +7,7 @@ Index of documentation in this directory.
 - [Common Rules](./common.md) - Session, working style, and output rules.
 - [Emoji Legend](./emoji_legend.md) - Canonical emoji vocabulary for agent reports and summaries.
 - [Git](./git.md) - Commits and pull requests.
+- [Install](./install.py) - Symlinks skills and commands into Claude Code, Codex and pi.
 - [Inbox Workflow](./inbox.md) - Raw capture buffer for unsorted ideas and notes.
 - [Jobs](./jobs.md) - ETA rules for long-running jobs.
 - [Prompts](./prompts.md) - Personal paste-bin of chat prompts.

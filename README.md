@@ -80,6 +80,7 @@ answer means the import did not load.
 | `emoji_legend.md` | Status emoji vocabulary for agent reports |
 | `git.md` | Commits and pull requests |
 | `inbox.md` | Inbox workflow - raw capture buffer (`docs/notes/inbox.md`) |
+| `install.py` | Installs skills and commands into Claude Code, Codex and pi |
 | `jobs.md` | ETA rules for long-running jobs |
 | `prompts.md` | Personal paste-bin of chat prompts |
 | `skills/` | Installable agent skills (see [Skills](#skills)) |
@@ -101,21 +102,39 @@ directory name to match the skill `name`.
 
 ### Install
 
-Symlink the skill into each harness's skills directory, so a `git pull` here
-updates it everywhere:
+`install.py` symlinks every skill and command into each harness that is
+installed on the machine. Each item is a link back to this clone, so a
+`git pull` updates every harness at once.
 
 ```bash
-mkdir -p ~/.claude/skills ~/.agents/skills
-ln -sfn ~/repos/agents/skills/git-report ~/.claude/skills/git-report
-ln -sfn ~/repos/agents/skills/git-report ~/.agents/skills/git-report
+~/repos/agents/install.py --dry-run
 ```
 
-| Harness | Skills directory |
-|---|---|
-| Claude Code | `~/.claude/skills/` (or install this repo as a plugin) |
-| Codex | `~/.agents/skills/` |
-| pi | `~/.agents/skills/` |
-| Any other | Paste the skill's `SKILL.md` as the prompt and give the agent the script path |
+```bash
+~/repos/agents/install.py
+```
+
+| Item | Claude Code | Codex | pi |
+|---|---|---|---|
+| `skills/*` | `~/.claude/skills/` | `~/.agents/skills/` | `~/.agents/skills/` (same link as Codex) |
+| `commands/*.md` | `~/.claude/commands/` | not supported | `~/.pi/agent/prompts/` |
+
+- Idempotent: run it again after every `git pull`. It adds new items and
+  removes links to items that were deleted or renamed here.
+- Never deletes or overwrites a real file or directory. It reports a
+  conflict and exits 1 instead.
+- `--force` replaces symlinks that point somewhere else (for example an
+  older clone). `--uninstall` removes every link into this clone.
+- A harness whose home directory (`~/.claude`, `~/.codex`, `~/.pi`) is
+  missing is skipped.
+- Needs Python 3.8+ on macOS or Linux.
+- Claude Code: use `install.py` or the plugin, not both, or each skill
+  loads twice.
+- Any other harness: paste the skill's `SKILL.md` as the prompt and give the
+  agent the script path.
+
+To support a new harness or item type, add a line to `HARNESSES` or
+`TARGETS` at the top of `install.py`.
 
 Verify: start a new session and ask "what git work did I do in the last 24
 hours?". The agent should run `scripts/git_report.py`.
