@@ -21,13 +21,22 @@ share one flat line. Parentheses separate them, so a reader replaces the regex.
 
 ## Format
 
+In a markdown file:
+
 ```markdown
-- @(STATE ID "title" (form ...) ...)
-  - optional detail, free text
+- @(state id "title" (key value ...) ...)
 ```
 
-Every item is one markdown list item holding exactly one balanced form, on one
-line. `grep`, `sed` and line diffs keep working.
+In a source file, after any comment marker:
+
+```rust
+// @(state id "title" (key value ...) ...)
+```
+
+One item is one balanced form. In markdown it stays on one line, so `grep`,
+`sed` and line diffs keep working. In a source file it may wrap across comment
+lines, because a comment is often narrower than the form; see
+[In code comments](#in-code-comments).
 
 ### Line
 
@@ -42,7 +51,11 @@ line. `grep`, `sed` and line diffs keep working.
   `@`, URLs - is literal text, so a title can never look like metadata.
 - Metadata are nested forms after the title, in any order. Every one is
   optional.
-- Nothing follows the closing paren.
+- Nothing follows the closing paren on a markdown line. In a source file a
+  comment terminator may follow: `/* @(todo "x") */` is valid.
+- A markdown item may be indented. Leading whitespace is not part of the item.
+- Everything is case-sensitive. States and keys are lowercase; `@(TODO ...)` is
+  not a task. An ID is an uppercase `T` then digits: `T3`, never `t3`.
 - Details go in `(note "...")`, inside the form. A sub-bullet under an item is
   prose for a human, carries no task data, and no tool reads it.
 - Change state by editing the head symbol in place. Drop an item by deleting the
@@ -54,8 +67,10 @@ line. `grep`, `sed` and line diffs keep working.
 pattern, and a form copied out of a code comment into `todo.md` stays valid
 unchanged.
 
-A bare `(` opens every nested form inside it. `#(` is accepted as a synonym for
-`@(` but is not written by tools.
+A bare `(` opens every nested form inside it.
+
+`#(` is a synonym: a reader must accept it, a writer must never emit it. One
+spelling goes into files, so `rg '@\(' ` finds everything.
 
 Measured 2026-09-23 against pandoc's GitHub-flavoured renderer and `grep`:
 
@@ -80,11 +95,21 @@ instead: `raveenkumar-xyz`, `in-progress`. An underscore is invalid in a symbol.
 The line schema escapes this because its tags sit behind `+` and `@`, which most
 renderers leave alone.
 
+### Fenced code blocks
+
+A form inside a ``` or ~~~ fence is an example of the format, not work. Readers
+skip fenced blocks, which is what keeps this document's own examples out of your
+task list.
+
+A form in a source file is the exception: code is where real work items live, so
+a comment inside a fenced block in markdown is still an example, while the same
+comment in a `.rs` file is a task.
+
 ### Checklists
 
 `- [ ]` and `- [x]` lines are checklists - steps in a procedure, audit or test
-run that you tick each time - not todo items. A todo line always starts with
-`- @(`, so the two never collide.
+run that you tick each time - not todo items. In markdown a todo line always
+starts with `- @(`, so the two never collide.
 
 ### Metadata forms
 
@@ -95,7 +120,7 @@ run that you tick each time - not todo items. A todo line always starts with
 | `(created ...)` | date or date-time | `(created 2026-09-15)` |
 | `(completed ...)` | date or date-time | `(completed 2026-09-19)` |
 | `(due ...)` | date or date-time | `(due 2026-08-19T09:00)` |
-| `(recurring ...)` | `daily`, `weekly`, `monthly`, `yearly`, or a count plus `d`, `w`, `m` or `y` | `(recurring 2w)` |
+| `(recurring ...)` | `daily`, `weekly`, `monthly`, `yearly`, or a count plus `d`, `w`, `m` or `y`. An optional leading `from-done` counts from `(completed ...)` instead of from `(due ...)` | `(recurring 2w)`, `(recurring from-done 3w)` |
 | `(pri ...)` | `A`, `B` or `C` | `(pri A)` |
 | `(note ...)` | one or more quoted strings, each a detail | `(note "only leaks on the retry path")` |
 
@@ -119,6 +144,11 @@ records the kind, so a fixed bug stays findable as a `done` form with `bug`.
 
 On completing a `(recurring ...)` item, advance `(due ...)` to the next
 occurrence instead of marking it `done`.
+
+The new `(due ...)` is computed from the old `(due ...)`, not from the day you
+finished. Rent stays on the 5th even when paid on the 9th. For an item that
+should space itself from the actual completion - a gym visit, a haircut - use
+`(recurring from-done 3w)`, which counts from `(completed ...)`.
 
 ### Dates and times
 
@@ -146,19 +176,60 @@ The line schema's [reference regex](todo_schema.md#reference-regex)
 becomes a grammar:
 
 ```ebnf
-item     = "- " "@" form
-form     = "(" state [ id ] title { meta } ")"
-state    = "todo" | "in-progress" | "optional" | "later" | "done" | "obsolete"
-id       = "T" digit { digit }
-title    = '"' { char | '\"' | '\\' } '"'
-meta     = "(" key value { value } ")"
-key      = "tags" | "ctx" | "created" | "completed" | "due" | "recurring" | "pri"
-value    = symbol | date
+md-item   = { space } "- " marker form            (* markdown list item *)
+code-item = comment-marker { any } marker form    (* source file comment *)
+marker    = "@(" | "#("                           (* writers emit "@(" *)
+
+form      = head { space } [ id space ] title { space meta } ")"
+head      = state
+state     = "todo" | "in-progress" | "optional" | "later" | "done" | "obsolete"
+id        = "T" digit { digit }
+title     = string                                (* non-empty *)
+string    = '"' { char - '"' - "\\" | '\\"' | "\\\\" } '"'   (* one line *)
+
+meta      = "(" key space value { space value } ")"
+key       = "tag" | "ctx" | "created" | "completed" | "due" | "recurring"
+          | "pri" | "note"
+value     = symbol | date | string
+symbol    = letter { letter | digit | "-" }       (* kebab-case, no "_" *)
+date      = YYYY "-" MM "-" DD [ "T" hh ":" mm ]
+space     = " " { " " }
 ```
+
+`marker` is the only place `@` is special. Inside a form `@` is an ordinary
+character.
+
+`comment-marker` is whatever starts a comment in that language (`#`, `//`, `--`,
+`;`, `/*`). `letter`, `digit`, `char`, `YYYY`, `MM`, `DD`, `hh` and `mm` are the
+obvious terminals.
 
 The reader is a character scan: push on `(`, pop on `)`, take a quoted string as
 one token, split everything else on whitespace. No lookahead, no backtracking,
 and it reports the column where a line breaks instead of just failing to match.
+
+### Conformance
+
+A reader:
+
+- Skips fenced blocks in markdown, and in a source file reads only text after a
+  comment marker.
+- Rejects a form whose head is not a state, whose title is missing or empty, or
+  whose key is unknown. An unknown key is an error, not a silent drop - a typo
+  like `(nite "x")` must not lose the note.
+- Rejects a repeated key. `(tag a) (tag b)` is an error; write `(tag a b)`.
+- Rejects a `(key)` with no value.
+- Accepts one or more spaces between tokens, and a tab as whitespace.
+- Accepts any UTF-8 in a title or note. Only `\"` and `\\` are escapes; `\n` is
+  the two characters backslash and n, because a string never spans lines.
+- Reports every rejection as `path:line:col` and exits non-zero.
+
+A writer:
+
+- Emits `@(`, never `#(`.
+- Emits keys in this order, skipping absent ones: `tag ctx created completed due
+  recurring pri note`. A fixed order keeps diffs to the field that changed.
+- Emits exactly one space between tokens.
+- Leaves every line it did not change byte-identical.
 
 ### Parser and libraries
 
@@ -261,6 +332,7 @@ When summarizing todos in reports, use the [Emoji Legend](emoji_legend.md):
 |---|---|
 | `todo`, `in-progress`, `optional`, `later` | ⏳ |
 | `done` | ✅ |
+| `obsolete` | 🗑️ |
 | Past `(due ...)` date | ⚠️ (replaces the state emoji) |
 
 ## Example
@@ -276,12 +348,12 @@ When summarizing todos in reports, use the [Emoji Legend](emoji_legend.md):
 
 | Aspect | Line schema | This |
 |---|---|---|
-| Parser | one regex, ~400 chars | ~30-line reader |
+| Parser | one regex, ~400 chars | ~40-line reader |
 | Title ambiguity | title must not end like metadata | quoted, no ambiguity |
 | Repeated tags | `+a +b` | `(tag a b)` |
 | In code comments | not expressible | native |
 | Notes | sub-bullets, prose only | `(note "...")`, same line |
-| First example line | 91 chars | 111 chars, 1.22x |
+| First example line | 91 chars | 174 chars, 1.9x - the note moved onto the line |
 | Renders as a bullet | yes | yes |
 | Underscores in tags | allowed | invalid |
 | Malformed by an agent | rare | unbalanced parens |
@@ -338,4 +410,8 @@ None. Every question this document opened is answered in
 | 2026-09-23 | No subtasks, the form is flat | Measured: 0 nested task lines in 9,698. Peers plus a shared tag cover it without teaching every tool recursion |
 | 2026-09-23 | `(tag ...)` and `(ctx ...)` stay separate | Kept apart deliberately. Measured: across 9,698 task lines `+tag` appears 51 times and `@word` 4 times, so the split is by intent, not by current usage |
 | 2026-09-23 | Notes are `(note "...")`, not sub-bullets | One mechanism everywhere, including code comments where sub-bullets do not exist. Cost: long notes make long lines, and markdown inside a note stays literal |
+| 2026-09-23 | A form in a fenced block is an example, not work | Otherwise this document's own examples become tasks |
+| 2026-09-23 | An unknown or repeated key is an error | A typo like `(nite "x")` must not silently lose the note |
+| 2026-09-23 | Writers emit keys in a fixed order | Diffs then show the field that changed, not a reshuffle |
+| 2026-09-23 | `recurring` counts from `(due ...)` | Rent stays on the 5th when paid on the 9th. `from-done` opts into the other behaviour |
 | 2026-09-23 | State is the head symbol, not a value (q1) | `@(` already says "task", and `@(todo` to `@(done` is the same edit as `TODO:` to `DONE:` today |
