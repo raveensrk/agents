@@ -2,7 +2,7 @@
 """Convert line-schema todo items to the lisp schema.
 
     - TODO: [T3] Pay rent +finance @home due:2026-08-05 (A)
-    - @(todo T3 "Pay rent" (tag finance) (ctx home) (due 2026-08-05) (pri A))
+    - %%task(todo T3 "Pay rent" (tag finance) (ctx home) (due 2026-08-05) (pri A))
 
 Reads todo_schema.md, writes todo_schema_lisp.md. Dry run by default.
 
@@ -27,6 +27,7 @@ import sys
 
 STATES = ["TODO", "IN_PROGRESS", "OPTIONAL", "LATER", "DONE", "OBSOLETE"]
 KEYS = ["created", "completed", "due", "recurring"]
+SCHEMA_STATES = [s.lower().replace("_", "-") for s in STATES]
 SKIP = {".git", "node_modules", "target", "tests", "fixtures", "dist", "build", ".venv"}
 FENCE = ("```", "~~~")
 
@@ -39,20 +40,21 @@ META = re.compile(r"\s(\+\w+|@\w+|(?:" + "|".join(KEYS) + r"):\S+)$")
 PRI = re.compile(r"\s\(([ABC])\)$")
 
 
+MARKER = "%%task("
+
+
 class Bad(Exception):
     pass
 
 
 def read(src):
-    """Parse one `@(...)` form. Raises Bad with a column. Mirrors todo_schema_lisp.md."""
-    at = src.find("@(")
-    if at < 0:
-        at = src.find("#(")
+    """Parse one `%%task(...)` form. Raises Bad with a column. Mirrors todo_schema_lisp.md."""
+    at = src.find(MARKER)
     if at < 0:
         raise Bad("no form")
 
-    # at+2 skips the "@(" marker: the outer paren is already open, depth 1.
-    i = at + 2
+    # The marker ends in "(", so the outer paren is already open: depth 1.
+    i = at + len(MARKER)
     out, cur, depth = [], "", 1
     stack = [out]
 
@@ -116,6 +118,12 @@ def check(src):
 
     if not body or body[0][0] != "sym":
         raise Bad("missing state")
+    if body[0][1] not in SCHEMA_STATES:
+        raise Bad(f"unknown state {body[0][1]}")
+
+    titles = [val for kind, val in body[1:] if kind == "str"]
+    if not titles or not titles[0].strip():
+        raise Bad("missing title")
 
     seen = set()
     for kind, val in body[1:]:
@@ -169,7 +177,7 @@ def convert(line):
     if not title:
         raise Bad("empty title")
 
-    out = [indent, "- @(", state.lower().replace("_", "-")]
+    out = [indent, "- ", MARKER, state.lower().replace("_", "-")]
     if tid:
         out.append(f" T{tid}")
     out.append(' "' + title.replace("\\", "\\\\").replace('"', '\\"') + '"')

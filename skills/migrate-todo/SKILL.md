@@ -1,6 +1,6 @@
 ---
 name: migrate-todo
-description: 'Convert line-schema todos (- TODO: ...) to the lisp schema (@(todo ...)), one repo at a time. Dry run by default. Use when the user asks to migrate, convert or upgrade todos to the lisp schema.'
+description: 'Convert line-schema todos (- TODO: ...) to the lisp schema (%%task(todo ...)), one repo at a time. Dry run by default. Use when the user asks to migrate, convert or upgrade todos to the lisp schema.'
 argument-hint: "[dir ...] [--apply]"
 allowed-tools: Read, Glob, Grep, Bash(python3:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git -C:*)
 disable-model-invocation: false
@@ -20,7 +20,7 @@ Rewrites every line-schema item as a form, per
 
 ```markdown
 - TODO: [T3] Pay rent +finance @home due:2026-08-05 (A)
-- @(todo T3 "Pay rent" (tag finance) (ctx home) (due 2026-08-05) (pri A))
+- %%task(todo T3 "Pay rent" (tag finance) (ctx home) (due 2026-08-05) (pri A))
 ```
 
 The conversion is done by `scripts/migrate_todo.py` in this skill's directory
