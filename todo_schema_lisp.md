@@ -64,9 +64,10 @@ lines, because a comment is often narrower than the form; see
 - Text may follow the closing paren. The form ends at its balanced paren, so a
   comment terminator (`*/`, `-->`, `#|`) or a trailing sentence is ignored, not
   an error.
-- Everything is case-sensitive. States and keys are lowercase, and so are tag
-  and context values; an uppercase state is not a task. An ID is an uppercase
-  `T` then digits: `"T3"`, never `"t3"`. A priority is `A`, `B` or `C`.
+- Everything but the head is case-sensitive. States and keys are lowercase, and
+  so are tag and context values; an uppercase state is not a task. An ID is an
+  uppercase `T` then digits: `"T3"`, never `"t3"`. A priority is `A`, `B` or
+  `C`.
 - Details go in `("note" "...")`, inside the form. Prose near an item carries no
   task data, and no tool reads it.
 - Change state by editing the first value in place. Drop an item by deleting the
@@ -225,7 +226,8 @@ context pass decides whether a line is captured, and that pass is the whole of
 
 `char`, `YYYY`, `MM`, `DD`, `hh` and `mm` are the obvious terminals. The state,
 key, id, tag, ctx, pri, date and recurrence shapes are validated by the reader,
-not by the grammar.
+not by the grammar. The head `task` matches case-insensitively; every value is
+case-sensitive.
 
 The reader is a Lisp reader plus a validation pass. The scan around it is a
 character walk: find `(task`, skip whitespace, require `"`, then push on `(` and
@@ -327,6 +329,10 @@ Rules:
 - In a source file the form must sit in a comment. The scanner uses the
   language's comment syntax; it does not count quotes, because a string literal
   escapes the marker's opening quote and never matches.
+- The marker may follow code on the same line: `x = 1  # (task "todo" "x")`
+  and `const a = 1; // (task "todo" "x")` are both captured. A block marker
+  that closes before the form does not count, so `/* note */ code (task ...)` is
+  not captured.
 - A form inside a string literal is not allowed. The host language escapes the
   inner quotes, so the marker never opens:
 
@@ -338,7 +344,9 @@ Rules:
   finds nothing. Move the form into a comment, which is where it belongs.
 - A form may continue onto the next line. The reader strips a leading run of
   comment punctuation (`*`, `//`, `#`, `;`, `--`, `%`, `<!--`, `"`) and
-  whitespace from each continuation line.
+  whitespace from each continuation line. A form may also *begin* on a
+  continuation line of a block comment (`/*` ... `*/`), not only on the line
+  that opens it.
 - A quoted title or note never spans lines.
 - An unbalanced form is an error, reported as `path:line:col`, and it fails the
   build. It is never skipped silently.
@@ -364,14 +372,18 @@ followed by a balanced form:
 
 Text before and after the form is ignored, so a bullet, a comment marker or a
 trailing sentence changes nothing. Verified 2026-09-23 on two fixtures: a board
-whose table row, blockquote and fenced example are skipped, and a `.js` file
-where a one-line comment and a two-line block comment are captured while a form
-in a string literal and a bare form in code are not.
+whose piped and pipeless table rows, blockquote and fenced example are skipped,
+and a `.js` file where a one-line comment, a two-line block comment and a form
+on the second line of a block comment are captured, while a form in a string
+literal and a bare form in code are not.
 
 ## Where the parser does not capture
 
-- **Markdown table cells.** A form in a cell is not work. `| (task "todo" "x") |`
-  is an example, and a table is a natural place to compare forms side by side.
+- **Markdown table cells.** A form in a cell is not work. A table is a natural
+  place to compare forms side by side, with or without leading pipes:
+  `| (task "todo" "x") |` and `x | (task "todo" "x")` are both examples.
+  A table is found by its separator row (`--- | ---`), so a pipeless row is
+  skipped too.
 - **Markdown blockquotes.** A form in a `>` line is quoted text, not work.
   `> (task "todo" "x")` is an example.
 - **Fenced code blocks.** A form inside a ``` or ~~~ fence is an example of the
@@ -504,7 +516,8 @@ earlier than the day the last item converts.
 | 2026-09-24 | The reader applies context rules, then scans for the marker | Markdown tables, blockquotes and fenced blocks are examples, not work; in a source file only a comment is captured. The form string stays identical everywhere |
 | 2026-09-23 | Markdown table cells and blockquotes are not captured | A table or a quote is where examples live, so the document can compare forms without creating tasks |
 | 2026-09-23 | In a source file, only comments are captured | Code and string literals are not tasks. The marker's opening quote already excludes string literals |
-| 2026-09-23 | One scanner, verified on two fixtures | A board with a table row, a blockquote and a fenced example skipped; a `.js` file with a one-line comment and a two-line block comment captured, and a string literal and bare code ignored |
+| 2026-09-23 | Table and block-comment state, like fenced blocks | A pipeless table row and a form on a block comment's second line are both common. Each needs one flag carried across lines, the same trick the fence skip already uses |
+| 2026-09-23 | One scanner, verified on two fixtures | A board with piped and pipeless table rows, a blockquote and a fenced example skipped; a `.js` file with a one-line comment, a two-line block comment and a second-line block comment captured, and a string literal and bare code ignored |
 | 2026-09-23 | No parsing library is required | The form is a single s-expression, so a library can parse it. Slicing and error positions are custom either way |
 | 2026-09-23 | Unbalanced forms fail loudly | Chosen over a silent skip: fix it when it errors |
 | 2026-09-23 | Values are kebab-case | Paired `_` italicises inside a markdown bullet |
@@ -516,7 +529,7 @@ earlier than the day the last item converts.
 | 2026-09-23 | `tag` and `ctx` stay separate | Kept apart deliberately. Measured: across 9,698 task lines `+tag` appears 51 times and `@word` 4 times, so the split is by intent, not by current usage |
 | 2026-09-23 | Notes are `("note" "...")`, not sub-bullets | One mechanism everywhere, including code comments where sub-bullets do not exist. Cost: long notes make long lines, and markdown inside a note stays literal |
 | 2026-09-24 | A form inside a string literal is not allowed | The host language escapes the inner quotes, so the marker never opens and the reader reports `path:line:col`. Chosen over unescaping (rewards a bad habit) and over skipping (needs the per-language quote counting this schema deleted) |
-| 2026-09-23 | Values are lowercase | The corpus holds `+Finance` and `+finance`; case-sensitive values would keep them apart forever |
+| 2026-09-23 | Tag and context values are lowercase | The corpus holds `+Finance` and `+finance`; case-sensitive values would keep them apart forever. Dates, priorities and IDs keep their case |
 | 2026-09-23 | A form in a fenced block is an example, not work | Otherwise this document's own examples become tasks |
 | 2026-09-23 | An unknown or repeated key is an error | A typo like `("nite" "x")` must not silently lose the note |
 | 2026-09-23 | Writers emit keys in a fixed order | Diffs then show the field that changed, not a reshuffle |
