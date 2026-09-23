@@ -389,10 +389,16 @@ The work, in order:
    depend on it, including the writer and three test suites.
 3. Writer: emit forms instead of lines, keeping every untouched line verbatim.
 4. Code scanner: a second source that reads comment text in source files.
-5. Data: 9,698 task lines convert. Trial-run on 2026-09-23 - all 9,698 were
-   converted and reparsed with no failures, growing by 10 characters at the
-   median and 22 at the worst. The converter normalises two things: symbols fold
-   to lowercase, and `_` becomes `-`. No title needed a `\"` escape.
+5. Data: 9,901 task lines across 3,604 markdown files convert. Trial-run on
+   2026-09-23 over a 9,698-line subset - all converted and reparsed with no
+   failures, growing by 10 characters at the median and 22 at the worst. The
+   converter normalises two things: symbols fold to lowercase, and `_` becomes
+   `-`. No title needed a `\"` escape.
+
+   Two traps the converter must handle: 27 of those lines sit inside fenced
+   blocks and are format examples, not work; and some roots reach the same file
+   twice through a symlink, so a file must be converted once however many paths
+   find it.
 6. The Python snapshot script keeps its own copy of the line regex and needs the
    same treatment.
 
