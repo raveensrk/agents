@@ -45,9 +45,9 @@ in any order, and every one is optional.
 # (task "todo" "Drop the shim once v2 lands" ("tag" "backend"))
 ```
 
-One item is one balanced form, and it stays on one line, so `grep`, `sed` and
-line diffs keep working. In a source file it may wrap across comment lines,
-because a comment is often narrower than the form; see
+One item is one balanced form, so `grep`, `sed` and line diffs keep working. In
+markdown it stays on one line; in a source file it may wrap across comment
+lines, because a comment is often narrower than the form; see
 [In code comments](#in-code-comments).
 
 ### Line
@@ -64,9 +64,9 @@ because a comment is often narrower than the form; see
 - Text may follow the closing paren. The form ends at its balanced paren, so a
   comment terminator (`*/`, `-->`, `#|`) or a trailing sentence is ignored, not
   an error.
-- Everything is case-sensitive. States, keys and values are lowercase; an
-  uppercase state is not a task. An ID is an uppercase `T` then digits: `"T3"`,
-  never `"t3"`.
+- Everything is case-sensitive. States and keys are lowercase, and so are tag
+  and context values; an uppercase state is not a task. An ID is an uppercase
+  `T` then digits: `"T3"`, never `"t3"`. A priority is `A`, `B` or `C`.
 - Details go in `("note" "...")`, inside the form. Prose near an item carries no
   task data, and no tool reads it.
 - Change state by editing the first value in place. Drop an item by deleting the
@@ -122,8 +122,9 @@ Markdown italicizes paired `_` inside a list item, so a tag value like
 `raveen_kumar_xyz` renders as `raveen*kumar*xyz`. Values use kebab-case instead:
 `raveenkumar-xyz`, `in-progress`. An underscore is invalid in a value.
 
-Values are lowercase. `Finance` and `finance` would otherwise be two tags, and
-the existing corpus already holds both spellings of exactly that word.
+Tag and context values are lowercase. `Finance` and `finance` would otherwise be
+two tags, and the existing corpus already holds both spellings of exactly that
+word. Dates, priorities and IDs have their own shapes and keep their case.
 
 The line schema escapes this because its tags sit behind `+` and `@`, which most
 renderers leave alone. Measured through pandoc: a `(task "` form survives intact
@@ -201,7 +202,7 @@ The line schema's [reference regex](todo_schema.md#reference-regex)
 becomes a grammar:
 
 ```ebnf
-item      = { any } marker form { any }           (* anywhere, in any file *)
+item      = { any } marker form { any }           (* after the context pass *)
 marker    = "(task" space '"'
 
 form      = "(" "task" space state space title { space meta } ")"
@@ -223,8 +224,8 @@ context pass decides whether a line is captured, and that pass is the whole of
 `@` are ordinary characters, because they sit in strings.
 
 `char`, `YYYY`, `MM`, `DD`, `hh` and `mm` are the obvious terminals. The state,
-the key, the date and the recurrence shapes are validated by the reader, not by
-the grammar.
+key, id, tag, ctx, pri, date and recurrence shapes are validated by the reader,
+not by the grammar.
 
 The reader is a Lisp reader plus a validation pass. The scan around it is a
 character walk: find `(task`, skip whitespace, require `"`, then push on `(` and
@@ -245,14 +246,17 @@ A reader:
 - Rejects a repeated key. `("tag" "a") ("tag" "b")` is an error; write
   `("tag" "a" "b")`.
 - Rejects a `(key)` with no value.
-- Rejects an uppercase letter in a state, key or value. `("tag" "Finance")` is
-  an error, not a second tag.
+- Rejects a value that does not match its key: a `tag` or `ctx` value must be
+  lowercase kebab-case (`("tag" "Finance")` is an error, not a second tag),
+  `pri` must be `A`, `B` or `C`, a date must match the date pattern, and
+  `recurring` must be a rate or a period. A `note` is free text.
 - Rejects an ID that is not `T` then digits.
 - Accepts one or more spaces between tokens, and a tab as whitespace.
 - Accepts any UTF-8 in a title or note. Only `\"` and `\\` are escapes; any
   other backslash is an error, reported as `path:line:col`. A string never
   spans lines, so no other escape exists.
-- Reports every rejection as `path:line:col` and exits non-zero.
+- Reports every rejection as `path:line:col`; a tool exits non-zero. The reader
+  raises the condition, and the file reader prefixes the path, line and column.
 
 A writer:
 
@@ -330,11 +334,11 @@ Rules:
   let s = "(task \"todo\" \"not a task\")";
   ```
 
-  On disk that line holds `\"`, not `"`. The scanner finds no `(task "` and
-  reports nothing; a `.lisp` reader reports `path:line:col`. Move the form into
-  a comment, which is where it belongs.
-- A form may continue onto the next line. The reader first strips a leading run
-  of `*`, `//`, `#`, `;` and whitespace from each continuation line.
+  On disk that line holds `\"`, not `"`, so the marker never opens. The scanner
+  finds nothing. Move the form into a comment, which is where it belongs.
+- A form may continue onto the next line. The reader strips a leading run of
+  comment punctuation (`*`, `//`, `#`, `;`, `--`, `%`, `<!--`, `"`) and
+  whitespace from each continuation line.
 - A quoted title or note never spans lines.
 - An unbalanced form is an error, reported as `path:line:col`, and it fails the
   build. It is never skipped silently.
@@ -359,12 +363,10 @@ followed by a balanced form:
 - Plain `.txt`, YAML (plain or single-quoted scalars), TOML (literal strings).
 
 Text before and after the form is ignored, so a bullet, a comment marker or a
-trailing sentence changes nothing. The context rules are what keep a markdown
-table of examples, a quoted blockquote and a fenced code block out of the task
-list. Verified 2026-09-24 over a fixture of 17 files: every in-scope form found,
-0 false positives, including a 2-line wrap, a trailing `*/`, a title holding
-`(parens)` and a `:colon:`, and a `.sv` file whose `always @(posedge clk)` lines
-matched nothing.
+trailing sentence changes nothing. Verified 2026-09-23 on two fixtures: a board
+whose table row, blockquote and fenced example are skipped, and a `.js` file
+where a one-line comment and a two-line block comment are captured while a form
+in a string literal and a bare form in code are not.
 
 ## Where the parser does not capture
 
@@ -379,8 +381,8 @@ matched nothing.
   inside a comment. A string literal escapes its quotes, so `(task "` becomes
   `(task \"` and the marker does not match; a bare form in code is not a task.
 - **A bare form in a `.lisp` file.** `.lisp` is code like any other, so the form
-  must sit in a `;` or `#|` comment. A bare `(task "todo" "x")` is a function
-  call, not a task.
+  must sit in a `;` comment. A bare `(task "todo" "x")` is a function call,
+  not a task.
 - **JSON.** A JSON string must escape `"` and JSON has no comments, so a valid
   form cannot appear in a `.json` file at all.
 - **`(task ` without the opening quote.** The marker requires the quote. This is
@@ -502,7 +504,7 @@ earlier than the day the last item converts.
 | 2026-09-24 | The reader applies context rules, then scans for the marker | Markdown tables, blockquotes and fenced blocks are examples, not work; in a source file only a comment is captured. The form string stays identical everywhere |
 | 2026-09-23 | Markdown table cells and blockquotes are not captured | A table or a quote is where examples live, so the document can compare forms without creating tasks |
 | 2026-09-23 | In a source file, only comments are captured | Code and string literals are not tasks. The marker's opening quote already excludes string literals |
-| 2026-09-24 | One scanner, verified on 17 file types | Every form found, 0 false positives, including a 2-line wrap, a trailing `*/`, a title holding parens, and a `.sv` file whose `always @(posedge clk)` lines matched nothing |
+| 2026-09-23 | One scanner, verified on two fixtures | A board with a table row, a blockquote and a fenced example skipped; a `.js` file with a one-line comment and a two-line block comment captured, and a string literal and bare code ignored |
 | 2026-09-23 | No parsing library is required | The form is a single s-expression, so a library can parse it. Slicing and error positions are custom either way |
 | 2026-09-23 | Unbalanced forms fail loudly | Chosen over a silent skip: fix it when it errors |
 | 2026-09-23 | Values are kebab-case | Paired `_` italicises inside a markdown bullet |
