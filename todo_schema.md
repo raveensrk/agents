@@ -27,8 +27,9 @@ Every todo item is one line, and one regex parses it: see
 
 - One item per line: `- `, a state from [States](#states), `: `, then the content.
   `-` is the only bullet.
-- `[T<n>]` - optional task ID, first element of the content. Allocation rules live in
-  [Task Protocol](task.md) - never reuse a number.
+- `[T<n>]` - optional task ID, first element of the content. Allocate
+  `1 + the highest [T<n>] ever used` in `todo.md`, `archive.md`, or their git
+  history (`git log -p`). Never reuse a number.
 - The title is free text. It may contain anything - links, URLs, colons, an `@` in an
   email or domain - but it must not end in something that looks like metadata.
 - Metadata follows the title as space-separated tokens, in any order. Every token is

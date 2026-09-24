@@ -11,7 +11,9 @@ Index of documentation in this directory.
 - [Jobs](./jobs.md) - ETA rules for long-running jobs.
 - [Prompts](./prompts.md) - Personal paste-bin of chat prompts.
 - [Skills](./skills/index.md) - Installable agent skills: git-report, migrate-todo, privacy-scan.
-- [Task Protocol](./task.md) - Plain-text kanban for AI coding agents.
+- [Todo Schema (Lisp)](./todo_schema_lisp.md) - The s-expression format, abandoned before adoption.
+- [Todo Schema (Org)](./todo_schema.org) - The org task format and protocol the vault is moving to.
 - [Terminologies](./terminologies.md) - Personal prompt-vocab notes.
 - [Todo Schema](./todo_schema.md) - Canonical format for todo items in documentation files.
+
 - [Use Case](./use_case.md) - Personal notes: what I use agents for.

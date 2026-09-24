@@ -83,8 +83,8 @@ answer means the import did not load.
 | `jobs.md` | ETA rules for long-running jobs |
 | `prompts.md` | Personal paste-bin of chat prompts |
 | `skills/` | Installable agent skills (see [Skills](#skills)) |
-| `task.md` | Task protocol - kanban in `docs/notes/todo.md` / `archive.md` |
-| `todo_schema.md` | Canonical todo item format |
+| `todo_schema.md` | Line format - legacy during migration |
+| `todo_schema.org` | Task format and protocol - org mode |
 | `terminologies.md` | Personal prompt-vocab notes |
 | `use_case.md` | Personal notes: what I use agents for |
 

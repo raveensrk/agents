@@ -1,11 +1,13 @@
 # TODO Schema (Lisp)
 
-The todo format this vault is moving to, in markdown files and in code
-comments alike.
+**Abandoned.** This format was never adopted, and
+[Todo Schema (Org)](todo_schema.org) is where the vault is going instead. This
+document is kept for the record and takes no new features.
 
-Both formats are allowed during the migration. [Todo Schema](todo_schema.md) -
+Both markdown formats are allowed during the migration. [Todo Schema](todo_schema.md) -
 the line format - still parses, still gets written by existing tools, and takes
-no new features. This one is where the format is going.
+no new features. This schema was to replace it, and never did: it holds no real
+items anywhere in the vault.
 
 `todo_schema.md` is deleted once the migration finishes, and this schema is then
 the only one. See [Migration](#migration).
@@ -44,8 +46,8 @@ lines, because a comment is often narrower than the form; see
   only bullet.
 - The head symbol is the state, from [States](#states): `@(todo ...)`,
   `@(done ...)`. There is no `task` head - `@(` already says this is a task.
-- A bare symbol after the head is the optional task ID: `T3`. Allocation rules
-  live in [Task Protocol](task.md) - never reuse a number.
+- A bare symbol after the head is the optional task ID: `T3`. Allocate
+  `1 + the highest ever used`, and never reuse a number.
 - The title is a double-quoted string, and it is the first quoted token. Write
   `\"` for a quote and `\\` for a backslash. Everything else - parens, colons,
   `@`, URLs - is literal text, so a title can never look like metadata.

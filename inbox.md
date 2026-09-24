@@ -1,7 +1,7 @@
 # Inbox Workflow
 
 Landing zone for raw, unsorted, unorganized ideas and notes. The capture buffer
-of the [Task Protocol](task.md). Temporary by design - items get triaged, never
+of the [task protocol](todo_schema.org). Temporary by design - items get triaged, never
 live here forever.
 
 ## Files
@@ -32,7 +32,7 @@ Capture anything that cannot go into tasks or docs:
 
 ## When NOT to capture
 
-- Well-defined work with clear acceptance criteria - write it straight to `todo.md` as a `[T<n>]` task (see [Task Protocol](task.md)). Inbox is only for vague or unorganized items - no queue, no confirmation step.
+- Well-defined work with clear acceptance criteria - write it straight to the board as a task (see [task protocol](todo_schema.org)). Inbox is only for vague or unorganized items - no queue, no confirmation step.
 - Durable knowledge - write to `docs/`.
 - Single-command trivialities - just do it, do not store.
 
