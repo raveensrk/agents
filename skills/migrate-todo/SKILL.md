@@ -57,7 +57,7 @@ repeatable.
 1. Generate the visual report first, always. It writes only the report file.
 
    ```bash
-   python3 <skill_dir>/scripts/migrate_todo.py --report ~/repos/ai/tmp/migration_report.html \
+   python3 <skill_dir>/scripts/migrate_todo.py --report ~/Downloads/migration_report.html \
        ~/repos ~/dot
    ```
 
