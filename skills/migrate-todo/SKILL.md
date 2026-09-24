@@ -84,9 +84,9 @@ repeatable.
 - Never pass `--apply` on your own. It is mine to authorise, every run.
 - Never edit the script to get a file through. A file the script refuses is a
   schema question, not a script bug - tell me what it choked on.
-- Do not touch `todo_schema.md`, `todo_schema_lisp.md` or any doc that teaches
-  an old format. Their examples are documentation, and the script already
-  skips fenced blocks.
+- Do not touch any doc that teaches an old format (the line schema, the lisp
+  schema). Their examples are documentation, and the script already skips
+  fenced blocks.
 - Do not convert test fixtures. The script skips `tests/` and `fixtures/`
   because code asserts on those exact strings.
 - Prose inside a board is preserved as body text, never dropped. Frontmatter

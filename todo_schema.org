@@ -206,13 +206,14 @@ Org's timestamp shape. Org accepts a bare date and a date with a time, with or w
 - Date ~<2026-08-19>~, date-time ~<2026-08-19 09:00>~, or org's own ~<2026-08-19 Wed 09:00>~.
 - 24-hour clock, no seconds, no time zone.
 - One timestamp, no spaces inside the date part. ~<2026-08-19 09:00>~ is one timestamp; ~<2026-08-19 09:00~ is unbalanced and an error.
-- Org does not validate the day name. ~<2026-08-19 Xyz>~ is stored verbatim and parses as a Wednesday. A reader therefore rejects a mismatching day name when one is present - wrong data is an error, not a warning.
+- Org does not validate the day name. A reader therefore rejects a mismatching day name when one is present - wrong data is an error, not a warning. The example below shows a stored-but-wrong day name.
 - ~CLOSED:~ may carry a time. Org writes one when ~org-log-done~ is on, and a time is real information, so the schema allows it.
 - ~:CREATED:~ is a date, never a date-time. It is written by a tool, and a tool writes ~YYYY-MM-DD~.
 
 A reader warns on any timestamp that does not match:
 
   #+BEGIN_EXAMPLE
+  <2026-08-19 Xyz>  - day name says Xyz, date is Wednesday; a reader rejects this
   DATE = \d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])
   TIME = ([01]\d|2[0-3]):[0-5]\d
   #+END_EXAMPLE

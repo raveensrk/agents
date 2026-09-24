@@ -576,10 +576,7 @@ are skipped. Prose inside boards is kept as body text; frontmatter is dropped
     page.append(f"""
 <h2>Not converted, by design</h2>
 <div class="note">Files holding line-schema items but not boards are skipped:
-test fixtures, <code>todo_schema.md</code> / <code>todo_schema_lisp.md</code>,
-this skill's own docs, <code>dot/docs/todo-vim.md</code>,
-<code>dot/docs/todo-script.md</code>, <code>Main_Quest/docs/notebook-format.md</code>,
-and the blog post <code>2026-09-13-how-chatgpt-ruined-my-date.md</code>. Their
+test fixtures, format documents, this skill's own docs, and blog posts. Their
 items document the format; they are not work.</div>
 <p>Dry run — nothing written. On approval:
 <code>python3 migrate_todo.py --apply ~/repos ~/dot</code></p>
