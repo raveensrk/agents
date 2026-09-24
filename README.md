@@ -96,7 +96,6 @@ directory name to match the skill `name`.
 
 | Skill | What it does |
 |---|---|
-| `agent-usage-report` | HTML report of every model used across agent harnesses (pi, Claude Code, Codex, opencode): tokens, cost, and the most intelligent and most efficient model |
 | `git-report` | Your commits across all your repos, local and remote, for any time window |
 | `migrate-todo` | Converts line-schema todos to the lisp schema, one repo at a time |
 | `privacy-scan` | Scans files or a diff for PII, privacy and security issues |
