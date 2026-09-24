@@ -109,7 +109,7 @@ def heading_title(title):
     """A markdown heading may not become a task or a near-miss state."""
     words = title.split()
     if words and state_like(words[0]):
-        return "Board — " + title
+        return " ".join(["Tasks"] + words[1:])
     return title
 
 
