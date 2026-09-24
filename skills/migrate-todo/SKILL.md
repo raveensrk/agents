@@ -33,7 +33,10 @@ Consolidates each repo's boards into repo-root org files per
 ```
 
 A board is a `.md` file named `todo`, `inbox` or `archive`
-(case-insensitive) that holds line-schema items. Per repo:
+(case-insensitive) that holds line-schema items. Every git repo under the
+roots gets the full schema file set — `todo.org`, `todo.org_archive`,
+`inbox.org`, `inbox.org_archive` — with headers, empty where there is nothing
+to fill:
 
 | Source                          | Destination                        |
 |---------------------------------+------------------------------------|
@@ -41,6 +44,7 @@ A board is a `.md` file named `todo`, `inbox` or `archive`
 | `inbox.md` items                | `todo.org` (they are shaped tasks) |
 | `archive.md` items              | `todo.org_archive` / `inbox.org_archive`, paired with the board in its directory |
 | any other `.md` with items      | not converted; named in the report |
+| nothing to fill                 | empty file with its header — that is fine |
 
 The conversion is done by `scripts/migrate_todo.py` in this skill's directory
 (`<skill_dir>` below is the directory holding this file). Run the script. Do
@@ -95,6 +99,7 @@ repeatable.
 | Report first, approval before anything | `--report` writes only the HTML report; `--apply` is never run without the user's go-ahead |
 | A revert undoes one repo | One commit per repo, dirty trees refused |
 | No invalid org file | Every generated file reparsed by a reader per the schema before anything is written |
+| Full file set in every repo | `todo.org`, `todo.org_archive`, `inbox.org`, `inbox.org_archive` exist after apply, empty with headers where there is nothing to fill |
 | Examples survive | Fenced blocks skipped |
 | Tests survive | `tests/`, `fixtures/`, `target/`, `node_modules/` skipped |
 | A symlinked file converts once | Paths resolved across all roots before conversion |

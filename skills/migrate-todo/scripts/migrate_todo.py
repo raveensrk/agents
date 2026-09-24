@@ -289,9 +289,10 @@ def walk(root, seen):
 
 
 def repo_of(path):
+    d = path if os.path.isdir(path) else os.path.dirname(path)
     try:
         got = subprocess.run(
-            ["git", "-C", os.path.dirname(path), "rev-parse", "--show-toplevel"],
+            ["git", "-C", d, "rev-parse", "--show-toplevel"],
             capture_output=True, text=True, check=True,
         )
         return got.stdout.strip()
@@ -420,12 +421,33 @@ def collect(roots):
                 skipped.append(f"generated {err}")
                 continue
             plan.setdefault(home, {})[name] = (text, sources, count)
-        # An archive paired with the inbox implies an inbox at the root; emit
-        # the empty think tank when the source board's items were shaped tasks.
-        if "inbox.org_archive" in targets and "inbox.org" not in targets:
-            plan.setdefault(home, {})["inbox.org"] = ("#+TITLE: INBOX\n", [], 0)
+
+    # The schema's file set is created in every repo, empty where there is
+    # nothing to fill. Repos are the git toplevels under the roots.
+    empty = {
+        "todo.org": "\n".join(org_header("TODO")) + "\n",
+        "todo.org_archive": "\n".join(archive_header()) + "\n",
+        "inbox.org": "#+TITLE: INBOX\n",
+        "inbox.org_archive": "\n".join(archive_header()) + "\n",
+    }
+    for home in git_toplevels(roots):
+        for name, text in empty.items():
+            plan.setdefault(home, {}).setdefault(name, (text, [], 0))
 
     return plan, skipped, loose, detail
+
+
+def git_toplevels(roots):
+    """Every git repo under the roots: the roots themselves and their children."""
+    tops = {}
+    for root in roots:
+        root = os.path.realpath(os.path.expanduser(root))
+        for d in [root] + [os.path.join(root, n) for n in os.listdir(root)]:
+            if os.path.isdir(d):
+                top = repo_of(d)
+                if top:
+                    tops[top] = True
+    return sorted(tops)
 
 
 prose_dropped = {}
@@ -610,12 +632,9 @@ def main():
         for name, (text, sources, _) in targets.items():
             open(os.path.join(home, name), "w", encoding="utf-8").write(text)
         subprocess.run(["git", "-C", home, "add", "-A"] + sorted(targets), check=True)
-        subprocess.run(
-            ["git", "-C", home, "rm", "-q"] + sorted(
-                {s for v in targets.values() for s in v[1]}
-            ),
-            check=True,
-        )
+        sources = sorted({s for v in targets.values() for s in v[1]})
+        if sources:
+            subprocess.run(["git", "-C", home, "rm", "-q"] + sources, check=True)
         items = sum(c for _, _, c in targets.values())
         subprocess.run(
             ["git", "-C", home, "commit", "-q", "-m",
