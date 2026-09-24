@@ -33,18 +33,19 @@ tests/                                fixture-based tests
 
 ## Install
 
-If you have the [agents](https://github.com/raveensrk/agents) repo, install it
-from there (and record it for a clean uninstall):
+This skill lives in the [agents](https://github.com/raveensrk/agents) repo at
+`skills/agent-usage-report/`. Install it from there (and record it for a clean
+uninstall):
 
 ```bash
-~/repos/agents/install.py --skill ~/repos/agent-usage-report
+~/repos/agents/install.py
 ```
 
-Otherwise symlink this repo into each harness's skills directory by hand:
+Otherwise symlink this directory into each harness's skills directory by hand:
 
 ```bash
-ln -s ~/repos/agent-usage-report ~/.agents/skills/agent-usage-report   # pi, Codex
-ln -s ~/repos/agent-usage-report ~/.claude/skills/agent-usage-report   # Claude Code
+ln -s ~/repos/agents/skills/agent-usage-report ~/.agents/skills/agent-usage-report   # pi, Codex
+ln -s ~/repos/agents/skills/agent-usage-report ~/.claude/skills/agent-usage-report   # Claude Code
 ```
 
 Reload the harness (pi: `/reload`) after installing or editing.
