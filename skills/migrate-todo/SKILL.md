@@ -50,18 +50,19 @@ repeatable.
 
 ## Steps
 
-1. Dry run first, always. It writes nothing.
+1. Generate the visual report first, always. It writes only the report file.
 
    ```bash
-   python3 <skill_dir>/scripts/migrate_todo.py ~/repos ~/dot
+   python3 <skill_dir>/scripts/migrate_todo.py --report ~/repos/ai/tmp/migration_report.html \
+       ~/repos ~/dot
    ```
 
-2. Show me the report. Per repo: destination files, item counts, and whether
-   the tree is clean. Every generated file is validated against the reader
-   rules before the report; a failure is reported instead of a file.
+2. Open the report for me and summarize: totals, per-repo destinations, dirty
+   repos, skipped files. The report shows every source board next to its
+   converted output in a dark-themed HTML page.
 
-3. Stop if anything looks wrong. A repo you did not expect, a count far off,
-   any failed file - raise it before writing.
+3. Stop for my approval. A repo I did not expect, a count far off, any failed
+   file - raise it before writing. Nothing is committed until I say go.
 
 4. On my go-ahead, apply. Each repo is converted and committed on its own, and
    a repo with a dirty tree is skipped rather than mixed into my work. The
@@ -91,6 +92,7 @@ repeatable.
 
 | Guarantee | How |
 |---|---|
+| Report first, approval before anything | `--report` writes only the HTML report; `--apply` is never run without the user's go-ahead |
 | A revert undoes one repo | One commit per repo, dirty trees refused |
 | No invalid org file | Every generated file reparsed by a reader per the schema before anything is written |
 | Examples survive | Fenced blocks skipped |
