@@ -206,7 +206,7 @@ Org's timestamp shape. Org accepts a bare date and a date with a time, with or w
 - Date ~<2026-08-19>~, date-time ~<2026-08-19 09:00>~, or org's own ~<2026-08-19 Wed 09:00>~.
 - 24-hour clock, no seconds, no time zone.
 - One timestamp, no spaces inside the date part. ~<2026-08-19 09:00>~ is one timestamp; ~<2026-08-19 09:00~ is unbalanced and an error.
-- Org does not validate the day name. ~<2026-08-19 Xyz>~ is stored verbatim and parses as a Wednesday. A reader therefore validates the day name when one is present, and rejects a mismatch.
+- Org does not validate the day name. ~<2026-08-19 Xyz>~ is stored verbatim and parses as a Wednesday. A reader therefore rejects a mismatching day name when one is present - wrong data is an error, not a warning.
 - ~CLOSED:~ may carry a time. Org writes one when ~org-log-done~ is on, and a time is real information, so the schema allows it.
 - ~:CREATED:~ is a date, never a date-time. It is written by a tool, and a tool writes ~YYYY-MM-DD~.
 
@@ -244,7 +244,7 @@ The new deadline is computed from the old deadline, not from the day you finishe
   nested    = "*" { "*" } space state space ...        (* an error *)
   state     = "TODO" | "IN_PROGRESS" | "OPTIONAL" | "LATER" | "DONE" | "OBSOLETE"
   pri       = "[#" ( "A" | "B" | "C" ) "]"
-  title     = { char - newline }                        (* non-empty *)
+  title     = char { char - newline }                      (* non-empty *)
   tags      = ":" tag { ":" tag } ":"                   (* end of line *)
   tag       = { alnum | "_" | "@" | "#" | "%" }
   space     = " " { " " }
@@ -270,7 +270,8 @@ The reader is org's own outline scan: a ~*~ at column 0 opens a heading, and eve
 - Rejects an indented ~*~ followed by a state keyword outside a block: it is a task that would silently vanish.
 - **Rejects a near-miss state.** A heading whose first word, ignoring a trailing colon, matches a declared state case-insensitively but not exactly is an error: ~* done x~, ~* Todo x~, ~* in_progress x~. A heading whose first word is one edit away from a declared state of six or more characters is an error: ~* OBOSLETE x~. Shorter states are exempt, so ~* None of the above~ and ~* Water the plants~ stay containers.
 - Rejects an unknown key in a ~:PROPERTIES:~ drawer only when the key is unknown to org *and* is a near-miss of a schema property.
-- Warns on a ~CLOSED:~ or ~DEADLINE:~ timestamp that does not match the date pattern, or whose day name contradicts its date.
+- Rejects a timestamp whose day name contradicts its date; see [[*Dates and times][Dates and times]].
+- Warns on a ~CLOSED:~ or ~DEADLINE:~ timestamp that does not match the date pattern.
 - Accepts any UTF-8 in a title or a note.
 - Reports every rejection as ~path:line:col~ and exits non-zero.
 
@@ -337,7 +338,7 @@ Plain-text kanban for AI coding agents. Any agent can pick up and complete a tas
 
 ** Picking which task
 
-Priority first: ~[#A]~, then ~[#B]~, then ~[#C]~, then unprioritised. Within one priority, take the oldest ~:CREATED:~ date.
+Priority first: ~[#A]~, then ~[#B]~, then ~[#C]~, then unprioritised. Within one priority, take the oldest ~:CREATED:~ date; a task without ~:CREATED:~ sorts last.
 
 ** Completing a task
 
