@@ -85,6 +85,7 @@ answer means the import did not load.
 | `todo_schema.md` | Line format - legacy during migration |
 | `todo_schema.org` | Task format, inbox and protocol - org mode |
 | `terminologies.md` | Personal prompt-vocab notes |
+| `uninstall.py` | Removes the skills and commands `install.py` installed |
 | `use_case.md` | Personal notes: what I use agents for |
 
 ## Skills
@@ -103,8 +104,9 @@ directory name to match the skill `name`.
 ### Install
 
 `install.py` symlinks every skill and command into each harness that is
-installed on the machine. Each item is a link back to this clone, so a
-`git pull` updates every harness at once.
+installed on the machine. Each item is a link back to its source, so a
+`git pull` updates every harness at once. It also installs skills that live in
+another repo, via `--skill`.
 
 ```bash
 ~/repos/agents/install.py --dry-run
@@ -113,6 +115,18 @@ installed on the machine. Each item is a link back to this clone, so a
 ```bash
 ~/repos/agents/install.py
 ```
+
+```bash
+# also install a skill that lives in its own repo
+~/repos/agents/install.py --skill ~/repos/agent-usage-report
+
+# no path: prompts, with tab completion
+~/repos/agents/install.py --skill
+```
+
+`--skill PATH` accepts a lone skill (a directory holding `SKILL.md`) or a
+directory that contains several, such as another repo's `skills/` folder. It is
+repeatable and installs alongside this repo's items.
 
 | Item | Claude Code | Codex | pi |
 |---|---|---|---|
@@ -124,7 +138,10 @@ installed on the machine. Each item is a link back to this clone, so a
 - Never deletes or overwrites a real file or directory. It reports a
   conflict and exits 1 instead.
 - `--force` replaces symlinks that point somewhere else (for example an
-  older clone). `--uninstall` removes every link into this clone.
+  older clone).
+- Every link it creates is recorded in
+  `~/.local/state/agent-skills/installed.json`. Run `./uninstall.py` to remove
+  them all; `./uninstall.py --scan` also sweeps up skill links made by hand.
 - A harness whose home directory (`~/.claude`, `~/.codex`, `~/.pi`) is
   missing is skipped.
 - Needs Python 3.8+ on macOS or Linux.

@@ -7,6 +7,7 @@ Index of documentation in this directory.
 - [Emoji Legend](./emoji_legend.md) - Canonical emoji vocabulary for agent reports and summaries.
 - [Git](./git.md) - Commits and pull requests.
 - [Install](./install.py) - Symlinks skills and commands into Claude Code, Codex and pi.
+- [Uninstall](./uninstall.py) - Removes the skills and commands install.py installed.
 - [Jobs](./jobs.md) - ETA rules for long-running jobs.
 - [Prompts](./prompts.md) - Personal paste-bin of chat prompts.
 - [Skills](./skills/index.md) - Installable agent skills: git-report, migrate-todo, privacy-scan.
