@@ -629,19 +629,34 @@ def main():
         if dirty(home):
             print(f"\nskipping {home}: working tree is dirty")
             continue
-        for name, (text, sources, _) in targets.items():
-            open(os.path.join(home, name), "w", encoding="utf-8").write(text)
+        for name, (text, sources, count) in targets.items():
+            path = os.path.join(home, name)
+            # Double-run guard: boards are deleted after a successful commit,
+            # so a re-run would see zero items. Never overwrite a file that
+            # already holds tasks with an empty one.
+            if not sources and os.path.exists(path):
+                existing = open(path, encoding="utf-8").read()
+                has_tasks = any(
+                    (m := HEADING.match(line)) and m.group(2) in STATES
+                    for line in existing.splitlines()
+                )
+                if has_tasks:
+                    continue
+            open(path, "w", encoding="utf-8").write(text)
         subprocess.run(["git", "-C", home, "add", "-A"] + sorted(targets), check=True)
         sources = sorted({s for v in targets.values() for s in v[1]})
         if sources:
             subprocess.run(["git", "-C", home, "rm", "-q"] + sources, check=True)
         items = sum(c for _, _, c in targets.values())
-        subprocess.run(
+        got = subprocess.run(
             ["git", "-C", home, "commit", "-q", "-m",
              "refactor: migrate todos to the org schema",
              "-m", f"{items} items into {len(targets)} org files, by migrate_todo.py."],
-            check=True,
+            capture_output=True, text=True,
         )
+        if got.returncode != 0:
+            print(f"\ncommit failed in {home}: {got.stderr.strip()}")
+            continue
         print(f"\ncommitted {home}: {items} items into {len(targets)} org files")
 
     return 0
