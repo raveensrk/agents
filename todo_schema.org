@@ -14,7 +14,7 @@ The line schema needs a 400-character regex because the title and the metadata s
 
 * Scope
 
-- Org is for task processing only. Prose stays markdown. A repository holds both, and they do not mix.
+- Org is for tasks and raw capture. Durable prose stays markdown. A repository holds both, and they do not mix.
 - ~todo.org~ and ~inbox.org~ live at the repository root, and nowhere else.
 - Every other ~.org~ file, anywhere in the repository, is a task source.
 - The scanner reads ~*.org~ **and** ~*.org_archive~. It must, because org's archive files end in ~_archive~, not ~.org~.
@@ -24,11 +24,22 @@ The line schema needs a 400-character regex because the title and the metadata s
 | File                  | Location         | Purpose        |
 |-----------------------+------------------+----------------|
 | ~todo.org~            | repository root  | Active board   |
-| ~inbox.org~           | repository root  | Raw capture    |
+| ~inbox.org~           | repository root  | Think tank     |
 | ~<file>.org_archive~  | beside its source | Archived items |
 | ~tmp/~                | repository root  | Scratch for active tasks. Gitignored. |
 
 ~archive.org~ does not exist. Archiving uses org's default location: ~<file>.org_archive~, beside the file it came from. A board in ~docs/notes.org~ archives to ~docs/notes.org_archive~.
+
+** Inbox
+
+~inbox.org~ is the think tank: a place for the human to write and read raw thoughts fast. It is plain org - no properties, no metadata, no states.
+
+- ~#+TITLE: INBOX~, and no ~#+TODO:~. The file holds no tasks.
+- One thought is one ~*~ heading at column 0, with a non-empty title.
+- No ~:PROPERTIES:~ drawer, no ~:ID:~, no ~:CREATED:~, no ~DEADLINE:~, no priority, no tags.
+- Never archived. Triage moves a heading out or deletes it.
+- The human writes it first. The active agent may append.
+- The reader reads ~inbox.org~ like any other task source, so its rules apply. ~* TODO: fix the leak~ is an error - the prompt to promote the thought or reword it. With no ~#+TODO:~, the reader falls back to ~TODO~ and ~DONE~, so ~* TODO fix the leak~ reads as a task; that is the same prompt.
 
 * Format
 
@@ -345,6 +356,32 @@ Priority first: ~[#A]~, then ~[#B]~, then ~[#C]~, then unprioritised. Within one
 - When the human asks to track something.
 - Not for single-command trivialities.
 
+** Capture
+
+Write to ~inbox.org~ when the human says "remember", "remind me", "note this", "save it for later", or "create a task" and the work is not yet shaped. See [[*Inbox][Inbox]] for the file shape.
+
+- One thought per ~*~ heading. Plain title, nothing else.
+- Do not add a state, an id, a deadline, a priority, or a tag.
+- ~inbox.org~ is the human's think tank first. Append; never reformat it.
+
+Do not capture:
+
+- Well-defined work with clear acceptance criteria. Write it to ~todo.org~ as a task; see [[*When to create a task][When to create a task]].
+- Durable knowledge. Write it to ~docs/~.
+- A single-command triviality. Just do it.
+
+** Triage
+
+The human reviews ~inbox.org~. For each heading, exactly one of:
+
+| Decision          | Action                                                |
+|-------------------+-------------------------------------------------------|
+| Make it a task    | Move the heading to ~todo.org~, add a state and ~:ID:~ |
+| Durable knowledge | Move it to ~docs/~                                    |
+| Drop it           | Delete the heading                                    |
+
+After triage the heading is gone from ~inbox.org~. It is temporary, not a ledger; git keeps the history.
+
 ** Temporary vs durable data
 
 | What                                   | Where         | Git     |
@@ -429,13 +466,15 @@ None. Every question this document opened is answered in [[*Decisions][Decisions
 | Date       | Decision                                                    | Why                                                              |
 |------------+-------------------------------------------------------------+------------------------------------------------------------------|
 | 2026-09-24 | Org is the store, markdown is legacy                        | One destination. The lisp schema was never adopted: zero real items in the vault |
-| 2026-09-24 | Org is for task processing only, prose stays markdown       | Markdown renders everywhere; org renders in Emacs                 |
+| 2026-09-24 | Org is for tasks and raw capture, durable prose stays markdown | Markdown renders everywhere; org renders in Emacs                 |
 | 2026-09-24 | ~todo.org~ and ~inbox.org~ at repository root only          | One board per repository, one place to look                       |
+| 2026-09-24 | ~inbox.org~ is a plain think tank, no metadata              | Human writes and reads it fast; the board carries the structure    |
+| 2026-09-24 | ~inbox.org~ and ~todo.org~ stay separate, read strictly     | Different trust and lifecycle; a state-like word is the prompt     |
 | 2026-09-24 | Any other ~.org~ file anywhere is a task source             | Tasks stay where the work is                                      |
 | 2026-09-24 | The lisp schema dies                                        | Zero users, and it would need its own converter for nothing        |
 | 2026-09-24 | Source files carry no task format                           | Measured: every code-embedded task in the vault is a test fixture  |
 | 2026-09-24 | Flat tags, no ~+~ and no ~@~, no project/context split      | The corpus has no hyphens or underscores in a tag; ~+~ is not in ~org-tag-re~ |
-| 2026-09-24 | Every ~.org~ file is a task source, ~#+TODO:~ required      | A file that is never opened loses its tasks silently               |
+| 2026-09-24 | Every ~.org~ file is a task source; a task file declares ~#+TODO:~ | A file that is never opened loses its tasks silently               |
 | 2026-09-24 | Grouping only, a task may not contain a task                | Measured: 0 nested tasks. Containers already group the corpus      |
 | 2026-09-24 | Task identity is ~:ID:~, a UUID                             | Org-native, and measured: ~[T<n>]~ appears once in 9,956 items     |
 | 2026-09-24 | ~completed~ is ~CLOSED:~, time allowed                      | The only slot org, the agenda and ~org-lint~ all understand        |

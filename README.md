@@ -78,13 +78,12 @@ answer means the import did not load.
 | `common.md` | Session start, working style, output style |
 | `emoji_legend.md` | Status emoji vocabulary for agent reports |
 | `git.md` | Commits and pull requests |
-| `inbox.md` | Inbox workflow - raw capture buffer (`docs/notes/inbox.md`) |
 | `install.py` | Installs skills and commands into Claude Code, Codex and pi |
 | `jobs.md` | ETA rules for long-running jobs |
 | `prompts.md` | Personal paste-bin of chat prompts |
 | `skills/` | Installable agent skills (see [Skills](#skills)) |
 | `todo_schema.md` | Line format - legacy during migration |
-| `todo_schema.org` | Task format and protocol - org mode |
+| `todo_schema.org` | Task format, inbox and protocol - org mode |
 | `terminologies.md` | Personal prompt-vocab notes |
 | `use_case.md` | Personal notes: what I use agents for |
 
