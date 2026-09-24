@@ -1,8 +1,6 @@
 #+TITLE: TODO Schema (Org)
 
-The task format and the task protocol this vault is moving to. It is org mode, unmodified. The protocol used to live in ~task.md~, which is deleted.
-
-Both markdown formats are legacy during the migration. [[file:todo_schema.md][Todo Schema]] (the line format) and [[file:todo_schema_lisp.md][Todo Schema (Lisp)]] still parse, take no new features, and are deleted once every item and every tool has moved. See [[*Migration][Migration]].
+The task format and the task protocol of this vault. It is org mode, unmodified. The protocol used to live in ~task.md~, which is deleted.
 
 Nothing in this schema is invented. Every rule is either org's own behaviour or a restriction on it. Where a rule restricts org, the reason is measured, not taste.
 
@@ -439,29 +437,21 @@ A complete ~todo.org~.
 
 * Migration
 
-Nothing reads this format yet. Until that changes, writing a task in it makes the task invisible to every existing tool.
+Done, 2026-09-25.
 
-The work, in order:
+1. ~~Reader~~: ~~,todo.py~~ scans ~*.org~ and ~*.org_archive~, reads each file's ~#+TODO:~, splits the heading, and reports ~path:line:col~. The near-miss state check and the day-name check are the only parts that are not org's own scan. (dot commit ~61370526~.)
+2. ~~Writer~~: the ~migrate-todo~ skill's converter emits org, keeping every untouched line verbatim.
+3. ~~Converter~~: 9,795 items migrated into repo-root ~todo.org~ / ~*_archive~ files across 19 repositories, one commit per repo. Fifteen files were not boards - test fixtures, format documents, skill files and a blog post - and did not convert: indented lines and code fences are examples, not work.
+4. ~~Archives~~: ~<file>.org_archive~ beside the board, with the mode line and a ~#+TODO:~ line.
+5. ~~Snapshot script~~: ~Main_Quest/scripts/snapshot.py~ reads org beside the line schema. (Main_Quest commit ~67fdbcb~.)
 
-1. Reader: scan ~*.org~ and ~*.org_archive~ for a ~*~ at column 0, read the file's ~#+TODO:~, split the heading, and report ~path:line:col~. The near-miss state check and the day-name check are the only parts that are not org's own scan.
-2. Writer: emit org instead of a line, keeping every untouched line verbatim.
-3. Converter: rewrite the existing items. Measured 2026-09-24: 9,956 task lines across 35 files. Fifteen of those files are not boards - test fixtures, format documents, skill files, notes and a blog post - and must not convert. Indented lines and code fences are examples, not work. The converter folds every tag to lowercase; four occurrences change.
-4. Archives: create ~<file>.org_archive~ with the mode line and a ~#+TODO:~ line, then let org append.
-5. The Python snapshot script keeps its own copy of the line regex and needs the same treatment.
+Every item has moved and both readers read org. ~todo_schema.md~ and ~todo_schema_lisp.md~ are deleted; this document stands alone.
 
-Done means all of:
-
-- The tools read and write org.
-- Every task file under every repository holds org tasks only.
-- No line-format and no lisp-format item remains anywhere.
-
-At that point ~todo_schema.md~ and ~todo_schema_lisp.md~ are deleted and this document stands alone. Until then all three are valid, and a file may hold a mix.
-
-The lisp schema is skipped entirely. Measured 2026-09-24: it holds no real items anywhere in the vault. The only files containing a lisp form are its own document, the ~migrate-todo~ skill, and that skill's script. The migration goes from the line format straight to org.
+What remains is per-repository adapter work, tracked in each repository: Main_Quest's ~mq-core~ still parses the line regex, the vim plugin still edits the line format, and three repositories that hold no tasks have not yet been given their empty file sets.
 
 * Open questions
 
-None. Every question this document opened is answered in [[*Decisions][Decisions]]; the remaining work is in [[*Migration][Migration]].
+None. Every question this document opened is answered in [[*Decisions][Decisions]].
 
 * Decisions
 
