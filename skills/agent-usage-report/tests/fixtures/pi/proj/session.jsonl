@@ -1,0 +1,6 @@
+{"type":"session","version":3,"id":"ses-test","timestamp":"2026-01-01T00:00:00.000Z","cwd":"/tmp/demo"}
+{"type":"model_change","id":"mc1","parentId":null,"timestamp":"2026-01-01T00:00:00.000Z","provider":"testprov","modelId":"test-model"}
+{"type":"thinking_level_change","id":"tl1","parentId":"mc1","timestamp":"2026-01-01T00:00:00.000Z","thinkingLevel":"medium"}
+{"type":"message","id":"u1","parentId":"tl1","timestamp":"2026-01-01T00:00:01.000Z","message":{"role":"user","content":[{"type":"text","text":"please run the tests"}],"timestamp":1}}
+{"type":"message","id":"a1","parentId":"u1","timestamp":"2026-01-01T00:00:02.000Z","message":{"role":"assistant","content":[{"type":"toolCall","id":"t1","name":"read","arguments":{"path":"x"}}],"api":"test","provider":"testprov","model":"test-model","usage":{"input":1000,"output":100,"cacheRead":500,"cacheWrite":0,"reasoning":20,"totalTokens":1600,"cost":{"input":0.002,"output":0.001,"cacheRead":0.001,"cacheWrite":0,"total":0.004}},"stopReason":"toolUse"}}
+{"type":"message","id":"r1","parentId":"a1","timestamp":"2026-01-01T00:00:03.000Z","message":{"role":"toolResult","toolCallId":"t1","toolName":"read","isError":true,"content":[{"type":"text","text":"boom"}]}}
