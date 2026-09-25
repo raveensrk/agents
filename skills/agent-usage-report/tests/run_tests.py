@@ -120,6 +120,15 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(dataset["sessions"], 4)
         self.assertEqual(sum(e["total"] for e in dataset["models"].values()), 4992)
 
+    def test_redact_projects(self):
+        import report
+        dataset = self.collect.aggregate(self.records)
+        report._redact_projects(dataset)
+        names = {p["project"] for p in dataset["projects"].values()}
+        self.assertTrue(names.issubset({"Project %d" % n for n in range(1, len(names) + 1)}))
+        for sess in dataset["sessions_detail"]:
+            self.assertIn(sess.get("project"), names | {None})
+
 
 class PricingTests(unittest.TestCase):
     def test_cost_from_rates(self):

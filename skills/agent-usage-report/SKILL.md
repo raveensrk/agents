@@ -141,6 +141,9 @@ Useful flags:
 - `--check` - detect harnesses, count records, resolve prices, write nothing.
 - `--check --check-pricing` - also report how many models were priced.
 - `--no-open` - write the report without opening a browser.
+- `--project-name` - reveal real project names. Default hides them: projects
+  and sessions are labelled `Project 1, Project 2, ...` so the report never
+  leaks repo or directory names (it lands in `~/Downloads`, not in git).
 - `--offline` - never touch the network; use the cached or bundled prices.
 - `--refresh-pricing` - re-fetch models.dev prices, AA benchmarks and the
   OpenRouter usage share now.

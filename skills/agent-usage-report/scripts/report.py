@@ -133,6 +133,8 @@ def run(args):
     dataset = collect.aggregate(records, since=since, until=until)
     if not dataset["models"]:
         raise SystemExit("ERROR: no model turns found for window %r." % label)
+    if not args.project_name:
+        _redact_projects(dataset)
 
     catalog = pricing.build_catalog(config, refresh=args.refresh_pricing,
                                     offline=args.offline)
@@ -193,6 +195,23 @@ def _guard_path(path):
             raise SystemExit(
                 "ERROR: refusing to write the report inside a git repository (%s).\n"
                 "Use --out with a path outside any repo, e.g. ~/Downloads." % parent)
+
+
+def _redact_projects(dataset):
+    """Replace real project names with Project N, ordered by token volume.
+
+    Runs unless --project-name is passed, so the report never leaks repo or
+    directory names. Scrubbing here fixes every section that shows projects
+    (Projects chart + session drilldown) in one place.
+    """
+    names = [p["project"] for p in sorted(
+        dataset["projects"].values(), key=lambda p: -p["total"])]
+    alias = {name: "Project %d" % (i + 1) for i, name in enumerate(names)}
+    for p in dataset["projects"].values():
+        p["project"] = alias[p["project"]]
+    for sess in dataset.get("sessions_detail") or []:
+        if sess.get("project") in alias:
+            sess["project"] = alias[sess["project"]]
 
 
 def _print_summary(dataset, meta, leaders, html_path, args):
@@ -309,6 +328,8 @@ def build_parser():
     parser.add_argument("--no-open", action="store_true", help="do not open the browser")
     parser.add_argument("--offline", action="store_true", help="never touch the network")
     parser.add_argument("--refresh-pricing", action="store_true", help="re-fetch models.dev and AA now")
+    parser.add_argument("--project-name", action="store_true",
+                        help="show real project names (default: redacted as Project N)")
     parser.add_argument("--check", action="store_true", help="detect harnesses, write nothing")
     parser.add_argument("--check-pricing", action="store_true", help="with --check, resolve prices")
     return parser

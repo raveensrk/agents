@@ -30,6 +30,7 @@ Personal paste-bin. Copy a prompt into chat. Agents do not treat this file as ru
 - Follow these conventions <https://www.conventionalcommits.org/en/v1.0.0/>
 - What do do next?
 - Tell me next steps.
+- Lessons from this run become <skill> rules
 
 ## Stage 2 - Review
 
