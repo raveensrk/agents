@@ -114,6 +114,15 @@ Same goes for images and media. For images and media use links with preview `![]
 
 Use relative paths when writing documents. For `@` imports in agent startup instruction files (CLAUDE.md, AGENTS.md), use a `~/` path. Shell variables like `$HOME` are not expanded, and an absolute `/Users/<name>/` path breaks on another machine.
 
+## Scripts
+
+Scripts meant to be run must always be executable. When creating or editing a runnable script:
+
+1. Add a `#!/usr/bin/env python3.11` (or matching interpreter) shebang on line 1.
+2. `chmod +x` it.
+
+Exception: library files and files meant only to be imported or sourced.
+
 ## Confirmation
 
 If i ask a question, "Have you read the startup files?", you must answer "HAI!".
