@@ -1,0 +1,82 @@
+---
+name: declutter
+description: >-
+  Find and delete unnecessary apps on macOS - unused GUI apps, brew formulae
+  and casks, leftover Library dirs from uninstalled apps. Builds a dark,
+  self-contained HTML report; the user picks what goes via checkboxes
+  (exports declutter-selection.json); the skill deletes safely:
+  brew uninstall for brew items, everything else moved to ~/.Trash, never rm.
+  Use when the user asks to clean up their Mac, delete unused apps,
+  free disk space, declutter, or find apps they do not use.
+argument-hint: "[--scan | --delete ~/Downloads/declutter-selection.json]"
+---
+
+# declutter
+
+Scan, report, user decides, delete safely. The skill judges nothing on its own:
+badges are suggestions, checkboxes are the user's decision, Trash is the undo.
+
+## Run
+
+1. Scan + build report (read-only):
+
+   ```sh
+   mkdir -p ~/tmp/declutter
+   python3 scripts/scan.py > ~/tmp/declutter/scan.json
+   python3 scripts/report.py ~/tmp/declutter/scan.json -o ~/tmp/declutter/report.html
+   open ~/tmp/declutter/report.html
+   ```
+
+   Requirements: macOS, python3 3.9+, Homebrew (optional - report works without).
+   Scan needs Spotlight (`mdls`) for last-used dates; missing dates show as "unknown".
+
+2. Tell the user: review the report, tick rows, press **Export selection**
+   (lands in `~/Downloads/declutter-selection.json`). They may instead just
+   tell you which rows to drop.
+
+   Rows can also be marked **ignore** (link in the name column) - ignored rows
+   stop appearing in future scans. If the export has an ignore list, apply it
+   before anything else:
+
+   ```sh
+   python3 scripts/delete.py ~/Downloads/declutter-selection.json --save-ignore
+   python3 scripts/scan.py > ~/tmp/declutter/scan.json   # re-scan, ignores now hidden
+   python3 scripts/report.py ~/tmp/declutter/scan.json -o ~/tmp/declutter/report.html
+   ```
+
+3. Dry run (always first, never skip):
+
+   ```sh
+   python3 scripts/delete.py ~/Downloads/declutter-selection.json
+   ```
+
+4. Show the dry-run output, ask for explicit confirmation.
+
+5. Only after a clear "yes, delete": `python3 scripts/delete.py ... --execute`.
+   Then remind them to empty the Trash once happy.
+
+## What the report shows
+
+- Headline cards: items scanned, JUNK count, reclaimable bytes.
+- Top-10 size bars.
+- Sortable, filterable table: badge (KEEP/MAYBE/JUNK), name, size, last used,
+  kind (app / formula / leftover). Locked rows: running apps, brew formulae
+  other formulae need. Duplicate installs flagged.
+- Badge rules: JUNK = unused 90+ days or never opened, MAYBE = 31-90 days,
+  KEEP = used in the last 30 days.
+
+## Safety rules
+
+- Never run `--execute` without showing dry-run output and getting explicit
+  user confirmation of that output.
+- Deletion routes: brew cask -> `brew uninstall --cask`, brew formula ->
+  `brew uninstall` (refused if any installed formula depends on it), manual
+  apps and leftovers -> moved to `~/.Trash` (recoverable, never `rm`).
+- `delete.py` refuses paths outside `/Applications`, `~`, Caskroom, Cellar.
+- Leftover rows are heuristic (substring match) - tell the user to eyeball
+  them before selecting.
+
+## Phase 2 (not built yet)
+
+File cleanup: Xcode DerivedData, node_modules, caches, logs. Same flow -
+scan, report, checkbox, Trash.
