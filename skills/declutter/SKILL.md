@@ -76,7 +76,11 @@ badges are suggestions, checkboxes are the user's decision, Trash is the undo.
 - Leftover rows are heuristic (substring match) - tell the user to eyeball
   them before selecting.
 
-## Phase 2 (not built yet)
+## Phase 2 - files (built)
 
-File cleanup: Xcode DerivedData, node_modules, caches, logs. Same flow -
-scan, report, checkbox, Trash.
+`scan.py` also scans regenerable file junk, same report and flow:
+Xcode DerivedData (per project), CoreSimulator caches, brew/pip/yarn
+caches, `~/Library/Logs`, and `node_modules` dirs (home-wide find,
+depth 5). Sub-1MB crumbs are skipped. Age = directory mtime, so a
+cache used today shows KEEP. All file rows go to Trash, things rebuild
+on next use.

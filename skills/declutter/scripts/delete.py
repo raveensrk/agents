@@ -82,7 +82,7 @@ def plan(item, execute):
             return f"would run: brew uninstall {name}"
         out = run(["brew", "uninstall", name])
         return f"brew formula {name}: {out.strip().splitlines()[-1] if out.strip() else 'ok'}"
-    if kind in ("app", "leftover"):
+    if kind in ("app", "leftover", "file"):
         if not execute:
             return f"would trash {item['path']}"
         return trash(item["path"])

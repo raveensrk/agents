@@ -47,6 +47,13 @@ def test_safe():
     assert not delete.safe("/usr/bin")
 
 
+def test_dir_age():
+    import tempfile
+    scan = load("scan")
+    with tempfile.TemporaryDirectory() as td:
+        assert scan.dir_age_days(td) == 0
+
+
 def test_merge_ignore():
     delete = load("delete")
     assert delete.merge_ignore(["/a"], ["/b", "/a", "", None]) == ["/a", "/b"]

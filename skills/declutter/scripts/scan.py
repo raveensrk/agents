@@ -8,12 +8,26 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import time as _time
+
 HOME = Path.home()
 BREW_PREFIX = Path(os.environ.get("HOMEBREW_PREFIX", "/opt/homebrew"))
 CELLAR = BREW_PREFIX / "Cellar"
 CASKROOM = BREW_PREFIX / "Caskroom"
 APP_DIRS = [Path("/Applications"), HOME / "Applications"]
 LEFTOVER_BASES = [HOME / "Library/Application Support", HOME / "Library/Caches"]
+
+# regenerable file targets; DerivedData and Logs are split per child,
+# the rest count as one item each
+FILE_SCANS = {
+    HOME / "Library/Developer/Xcode/DerivedData": "children",
+    HOME / "Library/Developer/CoreSimulator/Caches": "whole",
+    HOME / "Library/Caches/Homebrew": "whole",
+    HOME / "Library/Caches/pip": "whole",
+    HOME / "Library/Caches/Yarn": "whole",
+    HOME / "Library/Logs": "children",
+}
+MIN_FILE_BYTES = 1_000_000  # hide sub-1MB cache crumbs
 
 # ponytail: substring-based leftover filter, false positives land in report for human review
 GENERIC_DIRS = {"iCloud", "MobileSync", "Group Containers", "Containers", "Sync",
@@ -59,6 +73,14 @@ def run(cmd):
         return p.stdout if p.returncode == 0 else ""
     except Exception:
         return ""
+
+
+def dir_age_days(path):
+    try:
+        age = _time.time() - os.path.getmtime(path)
+        return max(0, int(age // 86400))
+    except OSError:
+        return None
 
 
 def dir_size(path):
@@ -195,6 +217,39 @@ def scan_leftovers(installed_keys):
     return out
 
 
+def scan_files():
+    targets = []
+    for base, mode in FILE_SCANS.items():
+        if not base.is_dir():
+            continue
+        if mode == "children":
+            targets += sorted(base.iterdir())
+        else:
+            targets.append(base)
+    # ponytail: depth-5 home-wide find, misses deeper projects, stays fast
+    found = run(["find", str(HOME), "-maxdepth", "5", "-name", "node_modules",
+                 "-type", "d", "-prune", "-not", "-path", "*/Library/*"])
+    targets += [Path(p) for p in found.splitlines() if p.strip()]
+    out = []
+    for t in targets:
+        size = dir_size(t)
+        if size < MIN_FILE_BYTES:
+            continue
+        days = dir_age_days(t)
+        out.append({
+            "kind": "file",
+            "name": t.name,
+            "path": str(t),
+            "bytes": size,
+            "days_unused": days,
+            "badge": badge(days),
+            "running": False,
+            "duplicate": False,
+            "source": "regenerable",
+        })
+    return out
+
+
 def main():
     apps, casks = scan_apps()
     formulae = scan_formulae()
@@ -203,7 +258,8 @@ def main():
                       | {norm(c) for c in casks.values()}
                       | {norm(f["name"]) for f in formulae})
     leftovers = scan_leftovers(installed_keys)
-    items = apps + formulae + leftovers
+    files = scan_files()
+    items = apps + formulae + leftovers + files
     ignored = load_ignored()
     shown = [i for i in items if i["path"] not in ignored]
     json.dump({
@@ -212,6 +268,7 @@ def main():
             "apps": len(apps),
             "formulae": len(formulae),
             "leftovers": len(leftovers),
+            "files": len(files),
             "junk": sum(1 for i in shown if i["badge"] == "JUNK"),
             "reclaimable_bytes": sum(i["bytes"] for i in shown if i["badge"] != "KEEP"),
             "ignored_hidden": len(items) - len(shown),

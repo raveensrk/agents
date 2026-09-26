@@ -76,6 +76,7 @@ HTML = """<!doctype html><html><head><meta charset="utf-8">
  <span class="chip" data-k="app">apps</span>
  <span class="chip" data-k="formula">brew</span>
  <span class="chip" data-k="leftover">leftovers</span>
+ <span class="chip" data-k="file">files</span>
  <button id="selmj">Select MAYBE+JUNK</button>
  <button id="clear">Clear</button>
  <button class="primary" id="export">Export selection (0)</button>
@@ -87,7 +88,9 @@ HTML = """<!doctype html><html><head><meta charset="utf-8">
 </tr></thead><tbody id="tb"></tbody></table>
 <div class="foot">badge: JUNK = unused 90+ days or never opened, MAYBE = 31-90 days, KEEP = used recently.
 brew formulae needed by others are locked. Apps marked <span style="color:var(--junk)">running</span> are locked until quit.
-Deletion route: brew uninstall for brew items, rest moves to ~/.Trash (recoverable, never rm).</div>
+Deletion route: brew uninstall for brew items, rest moves to ~/.Trash (recoverable, never rm).
+File rows are regenerable caches and logs (DerivedData, node_modules, brew/pip/yarn caches, ~/Library/Logs) -
+deleting them is safe, things rebuild on next use.</div>
 <script>const DATA=%(data)s;</script>
 <script>
 const tb=document.getElementById('tb'),q=document.getElementById('q');
