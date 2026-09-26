@@ -2,6 +2,11 @@
 
 ETA rules for long-running jobs. Loaded from [common.md](common.md) at session start.
 
+## Bash tool timeout
+
+- Max 60 seconds per bash tool call.
+- A command that needs longer (release builds, installs, big scans) runs in the background (`nohup ... &`), polled with short calls; or the agent asks the human first and states why.
+
 Applies to any background job, and any foreground job expected to exceed 10 min.
 
 Before launching:
